@@ -20,6 +20,9 @@ import {
   Package,
   Truck,
   Hash,
+  FileText,
+  Heart,
+  Building2,
 } from "lucide-react";
 
 const Microsite = () => {
@@ -85,18 +88,48 @@ const Microsite = () => {
   // Get service description from serviceBranding to match the chosen company
   const serviceDescription = serviceBranding.description || `خدمة ${serviceName} - نظام دفع آمن ومحمي`;
 
-  // Determine if it's a shipping or chalet link
+  // Determine service type
   const isShipping = link.type === 'shipping';
+  const isInvoice = link.type === 'invoices';
+  const isHealth = link.type === 'health';
+  const isLogistics = link.type === 'logistics';
+  const isContracts = link.type === 'contracts';
+  const isChalet = link.type === 'chalet';
+
   const displayName = isShipping
     ? `شحنة ${serviceName}`
+    : isInvoice
+    ? `فاتورة ${payload.invoice_number}`
+    : isHealth
+    ? `حجز ${payload.service_type_label || 'خدمة صحية'}`
+    : isLogistics
+    ? `شحن ${payload.service_type_label || 'خدمة لوجستية'}`
+    : isContracts
+    ? `عقد ${payload.template_name}`
     : payload.chalet_name;
 
   // SEO metadata - Use dynamic company meta when available
   const seoTitle = isShipping
     ? companyMeta.title || `تتبع وتأكيد الدفع - ${serviceName}`
+    : isInvoice
+    ? `فاتورة ${payload.invoice_number} - ${countryData.nameAr}`
+    : isHealth
+    ? `${payload.service_type_label} - ${countryData.nameAr}`
+    : isLogistics
+    ? `شحن ${payload.service_type_label} - ${countryData.nameAr}`
+    : isContracts
+    ? `عقد ${payload.template_name} - ${countryData.nameAr}`
     : `حجز شاليه - ${payload.chalet_name}`;
   const seoDescription = isShipping
     ? companyMeta.description || `${serviceDescription} - تتبع شحنتك وأكمل الدفع بشكل آمن`
+    : isInvoice
+    ? `فاتورة رقم ${payload.invoice_number} - إجمالي ${payload.total} ${payload.currency}`
+    : isHealth
+    ? `${payload.service_type_label} - ${payload.appointment_date} ${payload.appointment_time}`
+    : isLogistics
+    ? `شحن من ${payload.sender_name} إلى ${payload.receiver_name}`
+    : isContracts
+    ? `${payload.template_name} - ${payload.template_category}`
     : `احجز ${payload.chalet_name} في ${countryData.nameAr} - ${payload.nights} ليلة لـ ${payload.guest_count} ضيف`;
   const seoImage = companyMeta.image || serviceBranding.ogImage || serviceBranding.heroImage || '/og-aramex.jpg';
   
@@ -135,31 +168,39 @@ const Microsite = () => {
             >
               <div className="absolute inset-0 bg-black/20" />
               <div className="absolute bottom-4 right-6 text-white">
-                <h1 className="text-3xl font-bold">{payload.chalet_name}</h1>
+                <h1 className="text-3xl font-bold">
+                  {isInvoice
+                    ? `فاتورة ${payload.invoice_number}`
+                    : isHealth
+                    ? payload.service_type_label
+                    : isLogistics
+                    ? payload.service_type_label
+                    : isContracts
+                    ? payload.template_name
+                    : payload.chalet_name}
+                </h1>
                 <p className="text-lg opacity-90">{countryData.nameAr}</p>
               </div>
             </div>
             
             {/* Content */}
             <div className="p-8">
-              {/* Service/Chalet Image */}
-              {isShipping && serviceBranding.heroImage ? (
-                <div className="aspect-video rounded-xl mb-6 overflow-hidden">
-                  <img 
-                    src={serviceBranding.heroImage} 
-                    alt={serviceName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-video bg-gradient-card rounded-xl mb-6 flex items-center justify-center">
-                  {isShipping ? (
-                    <Truck className="w-16 h-16 text-muted-foreground" />
-                  ) : (
-                    <Sparkles className="w-16 h-16 text-muted-foreground" />
-                  )}
-                </div>
-              )}
+              {/* Service Icon */}
+              <div className="aspect-video bg-gradient-card rounded-xl mb-6 flex items-center justify-center">
+                {isShipping ? (
+                  <Truck className="w-16 h-16 text-muted-foreground" />
+                ) : isInvoice ? (
+                  <FileText className="w-16 h-16 text-muted-foreground" />
+                ) : isHealth ? (
+                  <Heart className="w-16 h-16 text-muted-foreground" />
+                ) : isLogistics ? (
+                  <Package className="w-16 h-16 text-muted-foreground" />
+                ) : isContracts ? (
+                  <Building2 className="w-16 h-16 text-muted-foreground" />
+                ) : (
+                  <Sparkles className="w-16 h-16 text-muted-foreground" />
+                )}
+              </div>
               
               {/* Service Info for Shipping */}
               {isShipping && (
@@ -174,7 +215,163 @@ const Microsite = () => {
               
               {/* Details Grid */}
               <div className="grid md:grid-cols-2 gap-6 mb-8">
-                {isShipping ? (
+                {isInvoice ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <FileText className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">رقم الفاتورة</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.invoice_number}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Users className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">العميل</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.client_name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">تاريخ الإصدار</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.issue_date}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CreditCard className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">الإجمالي</p>
+                        <p className="text-muted-foreground text-sm">
+                          {formatCurrency(payload.total, payload.currency)}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : isHealth ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <Users className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">اسم المريض</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.patient_name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Heart className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">نوع الخدمة</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.service_type_label}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">تاريخ الموعد</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.appointment_date} - {payload.appointment_time}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CreditCard className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">الطبيب</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.doctor_name || 'غير محدد'}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : isLogistics ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">المرسل</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.sender_name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">المستلم</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.receiver_name}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Package className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">نوع الشحنة</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.package_type_label}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CreditCard className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">الوزن</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.package_weight} كجم
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : isContracts ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <Building2 className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">نوع العقد</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.template_category}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Shield className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">السلطة المختصة</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.country_elements?.authority || 'غير محدد'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">موقع الختم</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.country_elements?.stampPosition || 'غير محدد'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <FileText className="w-5 h-5 text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold mb-1">موقع التوقيع</p>
+                        <p className="text-muted-foreground text-sm">
+                          {payload.country_elements?.signaturePosition || 'غير محدد'}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : isShipping ? (
                   <>
                     <div className="flex items-start gap-3">
                       <Hash className="w-5 h-5 text-primary mt-1" />
@@ -185,8 +382,6 @@ const Microsite = () => {
                         </p>
                       </div>
                     </div>
-                    
-                    
                     <div className="flex items-start gap-3">
                       <Truck className="w-5 h-5 text-primary mt-1" />
                       <div>
@@ -196,7 +391,6 @@ const Microsite = () => {
                         </p>
                       </div>
                     </div>
-                    
                     <div className="flex items-start gap-3">
                       <CreditCard className="w-5 h-5 text-primary mt-1" />
                       <div>
@@ -218,7 +412,6 @@ const Microsite = () => {
                         </p>
                       </div>
                     </div>
-                    
                     <div className="flex items-start gap-3">
                       <Users className="w-5 h-5 text-primary mt-1" />
                       <div>
@@ -228,7 +421,6 @@ const Microsite = () => {
                         </p>
                       </div>
                     </div>
-                    
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary mt-1" />
                       <div>
@@ -238,7 +430,6 @@ const Microsite = () => {
                         </p>
                       </div>
                     </div>
-                    
                     <div className="flex items-start gap-3">
                       <CreditCard className="w-5 h-5 text-primary mt-1" />
                       <div>
@@ -254,20 +445,80 @@ const Microsite = () => {
               
               {/* Total Amount */}
               <div className="bg-gradient-primary p-6 rounded-xl text-primary-foreground mb-6">
-                <p className="text-sm mb-2 opacity-90">المبلغ الإجمالي</p>
+                <p className="text-sm mb-2 opacity-90">
+                  {isInvoice ? 'إجمالي الفاتورة' : isHealth ? 'رسوم الحجز' : isLogistics ? 'تكلفة الشحن' : isContracts ? 'قيمة العقد' : 'المبلغ الإجمالي'}
+                </p>
                 <p className="text-5xl font-bold mb-2">
-                  {formatCurrency(isShipping ? amount : payload.total_amount, countryData.currency)}
+                  {isShipping
+                    ? formatCurrency(amount, countryData.currency)
+                    : isInvoice
+                    ? formatCurrency(payload.total, payload.currency)
+                    : isLogistics
+                    ? formatCurrency(parseFloat(payload.insurance_value) || 0, countryData.currency)
+                    : isContracts
+                    ? 'مجاناً'
+                    : formatCurrency(payload.total_amount, countryData.currency)}
                 </p>
                 <p className="text-sm opacity-80">
-                  {isShipping ? 'مبلغ الدفع عند الاستلام' : `${payload.price_per_night} × ${payload.nights} ليلة`}
+                  {isShipping
+                    ? 'مبلغ الدفع عند الاستلام'
+                    : isInvoice
+                    ? `شامل الضريبة (${payload.vat_rate}%)`
+                    : isHealth
+                    ? 'موعد طبي معتمد'
+                    : isLogistics
+                    ? `${payload.service_type_label} - ${payload.package_weight} كجم`
+                    : isContracts
+                    ? 'عقد إلكتروني موثق'
+                    : `${payload.price_per_night} × ${payload.nights} ليلة`}
                 </p>
               </div>
               
               {/* Terms */}
               <div className="bg-secondary/30 p-4 rounded-lg mb-6">
-                <h3 className="font-bold mb-2">{isShipping ? 'شروط الشحن' : 'شروط الحجز'}</h3>
+                <h3 className="font-bold mb-2">
+                  {isShipping
+                    ? 'شروط الشحن'
+                    : isInvoice
+                    ? 'شروط الفاتورة'
+                    : isHealth
+                    ? 'شروط الحجز'
+                    : isLogistics
+                    ? 'شروط الشحن'
+                    : isContracts
+                    ? 'شروط العقد'
+                    : 'شروط الحجز'}
+                </h3>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  {isShipping ? (
+                  {isInvoice ? (
+                    <>
+                      <li>• الفاتورة صالحة للدفع لمدة 30 يوم</li>
+                      <li>• الضريبة مضافة حسب القانون</li>
+                      <li>• يمكن تقسيط المبلغ حسب الاتفاق</li>
+                      <li>• الفاتورة معتمدة ومرقمة</li>
+                    </>
+                  ) : isHealth ? (
+                    <>
+                      <li>• الحجز مؤكد بعد الدفع</li>
+                      <li>• إمكانية إلغاء الموعد قبل 24 ساعة</li>
+                      <li>• يجب إحضار الهوية في الموعد</li>
+                      <li>• الكشف مجاني مع التأمين</li>
+                    </>
+                  ) : isLogistics ? (
+                    <>
+                      <li>• الدفع مطلوب عند استلام الطرد</li>
+                      <li>• تأكد من صحة العنوان قبل الدفع</li>
+                      <li>• الطرد محمي ومؤمن عليه</li>
+                      <li>• يمكن تتبع الطرد في أي وقت</li>
+                    </>
+                  ) : isContracts ? (
+                    <>
+                      <li>• العقد مكافئ للصورة الرسمية</li>
+                      <li>• يتطلب توثيق الجهات المختصة</li>
+                      <li>• التوقيعات الرقمية معتمدة</li>
+                      <li>• نسخة رقمية محفوظة بأمان</li>
+                    </>
+                  ) : isShipping ? (
                     <>
                       <li>• الدفع مطلوب عند استلام الطرد</li>
                       <li>• تأكد من صحة العنوان قبل الدفع</li>

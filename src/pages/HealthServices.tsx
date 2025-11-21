@@ -9,12 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Country, getCountryByCode } from "@/lib/countries";
 import { ArrowRight, Heart, Shield, Clock, Award, Phone, MapPin, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateLink } from "@/hooks/useSupabase";
 
 const HealthServices = () => {
   const { country } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const selectedCountry = getCountryByCode(country || "");
+  const createLink = useCreateLink();
 
   const [bookingData, setBookingData] = useState({
     patientName: "",
@@ -69,30 +71,42 @@ const HealthServices = () => {
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Store booking
-    const booking = {
-      id: `BOOK-${Date.now()}`,
-      ...bookingData,
-      country: country,
-      status: "pending",
-      createdAt: new Date().toISOString(),
+    const bookingPayload = {
+      patient_name: bookingData.patientName,
+      patient_id: bookingData.patientId,
+      phone: bookingData.phone,
+      email: bookingData.email,
+      service_type: bookingData.serviceType,
+      doctor_name: bookingData.doctorName,
+      appointment_date: bookingData.appointmentDate,
+      appointment_time: bookingData.appointmentTime,
+      notes: bookingData.notes,
+      service_type_label: serviceTypes.find(s => s.value === bookingData.serviceType)?.label || '',
+      service_type_icon: serviceTypes.find(s => s.value === bookingData.serviceType)?.icon || '',
+      service_type: 'health',
     };
 
-    const existingBookings = JSON.parse(
-      sessionStorage.getItem("healthBookings") || "[]"
-    );
-    existingBookings.push(booking);
-    sessionStorage.setItem("healthBookings", JSON.stringify(existingBookings));
+    try {
+      // Create link in Supabase
+      const link = await createLink.mutateAsync({
+        type: "health",
+        country_code: country || "SA",
+        payload: bookingPayload,
+      });
 
-    toast({
-      title: "تم إرسال طلب الحجز بنجاح!",
-      description: "سيتم التواصل معك قريباً لتأكيد الموعد",
-    });
+      toast({
+        title: "تم إرسال طلب الحجز بنجاح!",
+        description: "يمكنك مشاركة الرابط مع المريض",
+      });
 
-    navigate(`/health/${country}/confirmation?booking=${booking.id}`);
+      // Navigate to microsite
+      navigate(link.microsite_url);
+    } catch (error) {
+      console.error("Error creating booking:", error);
+    }
   };
 
   if (!selectedCountry) {

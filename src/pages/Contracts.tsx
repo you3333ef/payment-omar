@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Country, getCountryByCode, COUNTRIES } from "@/lib/countries";
 import { ArrowRight, FileText, Scale, Download, Eye, Stamp, PenTool } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateLink } from "@/hooks/useSupabase";
 
 interface ContractTemplate {
   id: string;
@@ -31,6 +32,7 @@ const Contracts = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const selectedCountry = getCountryByCode(country || "");
+  const createLink = useCreateLink();
 
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [contractData, setContractData] = useState<Record<string, string>>({});
@@ -205,7 +207,7 @@ const Contracts = () => {
     setContractData({ ...contractData, [fieldName]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const template = contractTemplates.find((t) => t.id === selectedTemplate);
@@ -224,29 +226,37 @@ const Contracts = () => {
       return;
     }
 
-    // Create contract record
-    const contract = {
-      id: `CNT-${Date.now()}`,
-      templateId: selectedTemplate,
-      templateName: template.name,
-      country: country,
-      data: contractData,
-      status: "draft",
-      createdAt: new Date().toISOString(),
+    const contractPayload = {
+      template_id: selectedTemplate,
+      template_name: template.name,
+      template_name_en: template.nameEn,
+      template_category: template.category,
+      fields: template.fields,
+      contract_data: contractData,
+      legal_requirements: template.legalRequirements,
+      signature_fields: template.signatureFields,
+      country_elements: getCountrySpecificElements(country || "SA"),
+      service_type: 'contracts',
     };
 
-    const existingContracts = JSON.parse(
-      sessionStorage.getItem("contracts") || "[]"
-    );
-    existingContracts.push(contract);
-    sessionStorage.setItem("contracts", JSON.stringify(existingContracts));
+    try {
+      // Create link in Supabase
+      const link = await createLink.mutateAsync({
+        type: "contracts",
+        country_code: country || "SA",
+        payload: contractPayload,
+      });
 
-    toast({
-      title: "تم إنشاء العقد بنجاح!",
-      description: `رقم العقد: ${contract.id}`,
-    });
+      toast({
+        title: "تم إنشاء العقد بنجاح!",
+        description: "يمكنك مشاركة الرابط مع الأطراف المعنية",
+      });
 
-    navigate(`/contracts/${contract.id}/preview?country=${country}`);
+      // Navigate to microsite
+      navigate(link.microsite_url);
+    } catch (error) {
+      console.error("Error creating contract:", error);
+    }
   };
 
   if (!selectedCountry) {

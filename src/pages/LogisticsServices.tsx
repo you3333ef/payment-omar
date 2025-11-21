@@ -10,12 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Country, getCountryByCode } from "@/lib/countries";
 import { ArrowRight, Truck, Package, MapPin, Clock, Shield, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateLink } from "@/hooks/useSupabase";
 
 const LogisticsServices = () => {
   const { country } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const selectedCountry = getCountryByCode(country || "");
+  const createLink = useCreateLink();
 
   const [bookingData, setBookingData] = useState({
     senderName: "",
@@ -99,30 +101,48 @@ const LogisticsServices = () => {
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Create logistics booking
-    const booking = {
-      id: `LOG-${Date.now()}`,
-      ...bookingData,
-      country: country,
-      status: "pending",
-      createdAt: new Date().toISOString(),
+    const logisticsPayload = {
+      sender_name: bookingData.senderName,
+      sender_phone: bookingData.senderPhone,
+      sender_address: bookingData.senderAddress,
+      receiver_name: bookingData.receiverName,
+      receiver_phone: bookingData.receiverPhone,
+      receiver_address: bookingData.receiverAddress,
+      package_type: bookingData.packageType,
+      package_weight: bookingData.packageWeight,
+      package_dimensions: bookingData.packageDimensions,
+      service_type: bookingData.serviceType,
+      insurance_value: bookingData.insuranceValue,
+      pickup_date: bookingData.pickupDate,
+      delivery_instructions: bookingData.deliveryInstructions,
+      package_type_label: packageTypes.find(p => p.value === bookingData.packageType)?.label || '',
+      package_type_icon: packageTypes.find(p => p.value === bookingData.packageType)?.icon || '',
+      service_type_label: serviceTypes.find(s => s.value === bookingData.serviceType)?.label || '',
+      service_type_icon: serviceTypes.find(s => s.value === bookingData.serviceType)?.icon || '',
+      service_type: 'logistics',
     };
 
-    const existingBookings = JSON.parse(
-      sessionStorage.getItem("logisticsBookings") || "[]"
-    );
-    existingBookings.push(booking);
-    sessionStorage.setItem("logisticsBookings", JSON.stringify(existingBookings));
+    try {
+      // Create link in Supabase
+      const link = await createLink.mutateAsync({
+        type: "logistics",
+        country_code: country || "SA",
+        payload: logisticsPayload,
+      });
 
-    toast({
-      title: "تم إنشاء طلب الشحن بنجاح!",
-      description: `رقم الطلب: ${booking.id}`,
-    });
+      toast({
+        title: "تم إنشاء طلب الشحن بنجاح!",
+        description: "يمكنك مشاركة الرابط مع المرسل والمستلم",
+      });
 
-    navigate(`/logistics/${country}/tracking?booking=${booking.id}`);
+      // Navigate to microsite
+      navigate(link.microsite_url);
+    } catch (error) {
+      console.error("Error creating logistics booking:", error);
+    }
   };
 
   if (!selectedCountry) {

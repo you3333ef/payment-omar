@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Country, COUNTRIES, getCountryByCode } from "@/lib/countries";
 import { ArrowRight, FileText, Plus, Trash2, Download, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateLink } from "@/hooks/useSupabase";
 
 interface InvoiceItem {
   id: string;
@@ -23,6 +24,7 @@ const CreateInvoice = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const selectedCountry = getCountryByCode(country || "");
+  const createLink = useCreateLink();
 
   const [invoiceData, setInvoiceData] = useState({
     invoiceNumber: `INV-${Date.now()}`,
@@ -85,33 +87,47 @@ const CreateInvoice = () => {
   const vatAmount = (subtotal * invoiceData.vatRate) / 100;
   const total = subtotal + vatAmount;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Create invoice record
-    const invoice = {
-      id: invoiceData.invoiceNumber,
-      ...invoiceData,
-      items,
-      subtotal,
-      vatAmount,
-      total,
-      country: country,
-      createdAt: new Date().toISOString(),
+    const invoicePayload = {
+      invoice_number: invoiceData.invoiceNumber,
+      client_name: invoiceData.clientName,
+      client_email: invoiceData.clientEmail,
+      client_phone: invoiceData.clientPhone,
+      client_address: invoiceData.clientAddress,
+      client_tax_number: invoiceData.clientTaxNumber,
+      issue_date: invoiceData.issueDate,
+      due_date: invoiceData.dueDate,
+      currency: invoiceData.currency,
+      vat_rate: invoiceData.vatRate,
+      items: items,
+      subtotal: subtotal,
+      vat_amount: vatAmount,
+      total: total,
+      notes: invoiceData.notes,
+      service_type: 'invoices',
     };
 
-    // Store in sessionStorage for demo
-    const existingInvoices = JSON.parse(sessionStorage.getItem("invoices") || "[]");
-    existingInvoices.push(invoice);
-    sessionStorage.setItem("invoices", JSON.stringify(existingInvoices));
+    try {
+      // Create link in Supabase
+      const link = await createLink.mutateAsync({
+        type: "invoices",
+        country_code: country || "SA",
+        payload: invoicePayload,
+      });
 
-    toast({
-      title: "تم إنشاء الفاتورة بنجاح!",
-      description: `رقم الفاتورة: ${invoiceData.invoiceNumber}`,
-    });
+      toast({
+        title: "تم إنشاء فاتورة بنجاح!",
+        description: "يمكنك مشاركة الرابط مع العميل",
+      });
 
-    // Navigate to invoice list
-    navigate(`/invoices/list/${country}`);
+      // Navigate to microsite
+      navigate(link.microsite_url);
+    } catch (error) {
+      console.error("Error creating invoice:", error);
+    }
   };
 
   if (!selectedCountry) {
