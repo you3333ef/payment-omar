@@ -272,6 +272,16 @@ export const serviceLogos: Record<string, { logo: string; colors: { primary: str
     ogImage: "https://genacom.carrd.co/assets/images/image01.jpg?v=6bb18d7b",
     heroImage: "https://genacom.carrd.co/assets/images/image01.jpg?v=6bb18d7b",
     description: "شركة توصيل عُمانية محلية تقدم خدمات التوصيل والشحن داخل سلطنة عُمان مع شبكة فروع واسعة وخدمة تتبع"
+  },
+  jinakum: {
+    logo: "/og-jinakum.jpg",
+    colors: {
+      primary: "#0EA5E9",
+      secondary: "#06B6D4"
+    },
+    ogImage: "/og-jinakum.jpg",
+    heroImage: "/og-jinakum.jpg",
+    description: "شركة Jinakum - خدمات دفع وتحويل آمنة وموثوقة"
   }
 };
 

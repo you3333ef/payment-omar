@@ -108,6 +108,13 @@ const companyMetaMap: Record<string, CompanyMeta> = {
     description: "Pay DHL Bahrain services"
   },
 
+  // Jinakum Company
+  jinakum: {
+    image: "/og-jinakum.jpg",
+    title: "Jinakum Company Payment",
+    description: "Pay Jinakum Company services"
+  },
+
   // Default fallback for unknown companies
   default: {
     image: "/og-aramex.jpg",

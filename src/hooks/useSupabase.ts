@@ -133,7 +133,7 @@ export const useCreateLink = () => {
           status: "active",
         })
         .select()
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data as Link;
@@ -195,7 +195,7 @@ export const useCreatePayment = () => {
           attempts: 0,
         })
         .select()
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data as Payment;
@@ -247,7 +247,7 @@ export const useUpdatePayment = () => {
         .update(updates)
         .eq("id", paymentId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data as Payment;
@@ -283,7 +283,7 @@ export const useUpdateLink = () => {
         .update({ payload })
         .eq("id", linkId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data as Link;
