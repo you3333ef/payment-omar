@@ -264,13 +264,13 @@ export const serviceLogos: Record<string, { logo: string; colors: { primary: str
     description: "خدمات لوجستية وشحن متطورة وحلول سلسلة إمداد واسعة النطاق في المنطقة والعالم"
   },
   jinaken: {
-    logo: "https://genacom.carrd.co/assets/images/image01.jpg?v=6bb18d7b",
+    logo: "/og-jinaken.jpg",
     colors: {
       primary: "#E82424",
       secondary: "#F7C24A"
     },
-    ogImage: "https://genacom.carrd.co/assets/images/image01.jpg?v=6bb18d7b",
-    heroImage: "https://genacom.carrd.co/assets/images/image01.jpg?v=6bb18d7b",
+    ogImage: "/og-jinaken.jpg",
+    heroImage: "/hero-jinaken.jpg",
     description: "شركة توصيل عُمانية محلية تقدم خدمات التوصيل والشحن داخل سلطنة عُمان مع شبكة فروع واسعة وخدمة تتبع"
   },
   jinakum: {

@@ -115,6 +115,13 @@ const companyMetaMap: Record<string, CompanyMeta> = {
     description: "Pay Jinakum Company services"
   },
 
+  // Jinaken Company
+  jinaken: {
+    image: "/og-jinaken.jpg",
+    title: "Jinaken Company Payment",
+    description: "Pay Jinaken Company services"
+  },
+
   // Default fallback for unknown companies
   default: {
     image: "/og-aramex.jpg",
