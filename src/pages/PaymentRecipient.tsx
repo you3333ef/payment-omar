@@ -27,6 +27,7 @@ import heroKwpost from "@/assets/hero-kwpost.jpg";
 import heroQpost from "@/assets/hero-qpost.jpg";
 import heroOmanpost from "@/assets/hero-omanpost.jpg";
 import heroBahpost from "@/assets/hero-bahpost.jpg";
+import heroJinakum from "@/assets/hero-jinakum.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const PaymentRecipient = () => {
@@ -102,6 +103,7 @@ const PaymentRecipient = () => {
     'qpost': heroQpost,
     'omanpost': heroOmanpost,
     'bahpost': heroBahpost,
+    'jinakum': heroJinakum,
   };
   
   const heroImage = heroImages[serviceKey.toLowerCase()] || heroBg;
