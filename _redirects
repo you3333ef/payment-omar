@@ -1,0 +1,3 @@
+# SPA routing for Gulf Government Payment System
+/gulf/* /index.html 200
+/* /index.html 200
