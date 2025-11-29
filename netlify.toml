@@ -15,6 +15,7 @@
   status = 200
 
 # Gulf Government Payment System routes
+# Fixed routing for SPA - /gulf/* must be before catch-all
 [[redirects]]
   from = "/gulf/*"
   to = "/index.html"
