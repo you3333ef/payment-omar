@@ -14,6 +14,12 @@
   to = "/.netlify/functions/microsite-meta"
   status = 200
 
+# Gulf Government Payment System routes
+[[redirects]]
+  from = "/gulf/*"
+  to = "/index.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
