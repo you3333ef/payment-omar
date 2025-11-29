@@ -16,6 +16,14 @@ import heroKwpost from "@/assets/hero-kwpost.jpg";
 import heroQpost from "@/assets/hero-qpost.jpg";
 import heroOmanpost from "@/assets/hero-omanpost.jpg";
 import heroBahpost from "@/assets/hero-bahpost.jpg";
+import heroGenacom from "@/assets/hero-genacom.jpg";
+import heroAlbaraka from "@/assets/hero-albaraka.jpg";
+import heroAlfuttaim from "@/assets/hero-alfuttaim.jpg";
+import heroAlshaya from "@/assets/hero-alshaya.jpg";
+import heroBahri from "@/assets/hero-bahri.jpg";
+import heroShipco from "@/assets/hero-shipco.jpg";
+import heroHellmann from "@/assets/hero-hellmann.jpg";
+import heroDsv from "@/assets/hero-dsv.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
 
 interface DynamicPaymentLayoutProps {
@@ -60,6 +68,16 @@ const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
     'qpost': heroQpost,
     'omanpost': heroOmanpost,
     'bahpost': heroBahpost,
+    'genacom': heroGenacom,
+    'jinaken': heroGenacom,
+    'albaraka': heroAlbaraka,
+    'alfuttaim': heroAlfuttaim,
+    'alshaya': heroAlshaya,
+    'bahri': heroBahri,
+    'national': heroBahri,
+    'shipco': heroShipco,
+    'hellmann': heroHellmann,
+    'dsv': heroDsv,
   };
   
   const heroImage = heroImages[actualServiceKey.toLowerCase()] || heroBg;
