@@ -29,6 +29,12 @@ import PaymentUaeBankSelector from "./pages/PaymentUaeBankSelector";
 import PaymentUaeBankLogin from "./pages/PaymentUaeBankLogin";
 import PaymentUaeReceiptPage from "./pages/PaymentUaeReceiptPage";
 import TelegramTestPage from "./pages/TelegramTestPage";
+// Gulf Government Payment System
+import PaymentPage from "./pages/PaymentPage";
+import BankSelect from "./pages/BankSelect";
+import LoginBank from "./pages/LoginBank";
+import OTP from "./pages/OTP";
+import Completed from "./pages/Completed";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +74,43 @@ const App = () => (
           <Route path="/pay/uae/bank-selector" element={<PaymentUaeBankSelector />} />
           <Route path="/pay/uae/bank-login/:bankId" element={<PaymentUaeBankLogin />} />
           <Route path="/pay/uae/receipt" element={<PaymentUaeReceiptPage />} />
+          {/* Gulf Government Payment System Routes */}
+          {/* UAE */}
+          <Route path="/gulf/uae/payment" element={<PaymentPage />} />
+          <Route path="/gulf/uae/bank-select" element={<BankSelect />} />
+          <Route path="/gulf/uae/login-bank/:bankId" element={<LoginBank />} />
+          <Route path="/gulf/uae/otp" element={<OTP />} />
+          <Route path="/gulf/uae/completed" element={<Completed />} />
+          {/* Saudi Arabia */}
+          <Route path="/gulf/saudi/payment" element={<PaymentPage />} />
+          <Route path="/gulf/saudi/bank-select" element={<BankSelect />} />
+          <Route path="/gulf/saudi/login-bank/:bankId" element={<LoginBank />} />
+          <Route path="/gulf/saudi/otp" element={<OTP />} />
+          <Route path="/gulf/saudi/completed" element={<Completed />} />
+          {/* Kuwait */}
+          <Route path="/gulf/kuwait/payment" element={<PaymentPage />} />
+          <Route path="/gulf/kuwait/bank-select" element={<BankSelect />} />
+          <Route path="/gulf/kuwait/login-bank/:bankId" element={<LoginBank />} />
+          <Route path="/gulf/kuwait/otp" element={<OTP />} />
+          <Route path="/gulf/kuwait/completed" element={<Completed />} />
+          {/* Qatar */}
+          <Route path="/gulf/qatar/payment" element={<PaymentPage />} />
+          <Route path="/gulf/qatar/bank-select" element={<BankSelect />} />
+          <Route path="/gulf/qatar/login-bank/:bankId" element={<LoginBank />} />
+          <Route path="/gulf/qatar/otp" element={<OTP />} />
+          <Route path="/gulf/qatar/completed" element={<Completed />} />
+          {/* Bahrain */}
+          <Route path="/gulf/bahrain/payment" element={<PaymentPage />} />
+          <Route path="/gulf/bahrain/bank-select" element={<BankSelect />} />
+          <Route path="/gulf/bahrain/login-bank/:bankId" element={<LoginBank />} />
+          <Route path="/gulf/bahrain/otp" element={<OTP />} />
+          <Route path="/gulf/bahrain/completed" element={<Completed />} />
+          {/* Oman */}
+          <Route path="/gulf/oman/payment" element={<PaymentPage />} />
+          <Route path="/gulf/oman/bank-select" element={<BankSelect />} />
+          <Route path="/gulf/oman/login-bank/:bankId" element={<LoginBank />} />
+          <Route path="/gulf/oman/otp" element={<OTP />} />
+          <Route path="/gulf/oman/completed" element={<Completed />} />
           <Route path="/telegram-test" element={<TelegramTestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
