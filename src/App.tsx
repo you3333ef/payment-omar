@@ -24,6 +24,10 @@ import PaymentBankLogin from "./pages/PaymentBankLogin";
 import PaymentCardForm from "./pages/PaymentCardForm";
 import PaymentOTPForm from "./pages/PaymentOTPForm";
 import PaymentReceiptPage from "./pages/PaymentReceiptPage";
+import PaymentMethodSelection from "./pages/PaymentMethodSelection";
+import PaymentUaeBankSelector from "./pages/PaymentUaeBankSelector";
+import PaymentUaeBankLogin from "./pages/PaymentUaeBankLogin";
+import PaymentUaeReceiptPage from "./pages/PaymentUaeReceiptPage";
 import TelegramTestPage from "./pages/TelegramTestPage";
 import NotFound from "./pages/NotFound";
 
@@ -59,6 +63,11 @@ const App = () => (
           <Route path="/pay/:id/card" element={<PaymentCardForm />} />
           <Route path="/pay/:id/otp" element={<PaymentOTPForm />} />
           <Route path="/pay/:id/receipt" element={<PaymentReceiptPage />} />
+          {/* UAE Payment Flow */}
+          <Route path="/pay/uae" element={<PaymentMethodSelection />} />
+          <Route path="/pay/uae/bank-selector" element={<PaymentUaeBankSelector />} />
+          <Route path="/pay/uae/bank-login/:bankId" element={<PaymentUaeBankLogin />} />
+          <Route path="/pay/uae/receipt" element={<PaymentUaeReceiptPage />} />
           <Route path="/telegram-test" element={<TelegramTestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

