@@ -186,7 +186,7 @@ const LogisticsServices = () => {
       package_type_icon: packageTypes.find(p => p.value === bookingData.packageType)?.icon || '',
       service_type_label: serviceTypes.find(s => s.value === bookingData.serviceType)?.label || '',
       service_type_icon: serviceTypes.find(s => s.value === bookingData.serviceType)?.icon || '',
-      service_type: 'logistics',
+      service_category: 'logistics',
     };
 
     try {

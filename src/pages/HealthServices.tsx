@@ -86,7 +86,7 @@ const HealthServices = () => {
       notes: bookingData.notes,
       service_type_label: serviceTypes.find(s => s.value === bookingData.serviceType)?.label || '',
       service_type_icon: serviceTypes.find(s => s.value === bookingData.serviceType)?.icon || '',
-      service_type: 'health',
+      service_category: 'health',
     };
 
     try {
