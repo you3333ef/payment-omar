@@ -68,6 +68,14 @@ const Microsite = () => {
     }
   }
 
+  // Determine service type
+  const isShipping = link.type === 'shipping';
+  const isInvoice = link.type === 'invoices';
+  const isHealth = link.type === 'health';
+  const isLogistics = link.type === 'logistics';
+  const isContracts = link.type === 'contracts';
+  const isChalet = link.type === 'chalet';
+
   // Get service branding for SEO and display
   const serviceName = payload.service_name || payload.chalet_name;
   const serviceKey = payload.service_key || 'aramex';
@@ -87,14 +95,6 @@ const Microsite = () => {
 
   // Get service description from serviceBranding to match the chosen company
   const serviceDescription = serviceBranding.description || `خدمة ${serviceName} - نظام دفع آمن ومحمي`;
-
-  // Determine service type
-  const isShipping = link.type === 'shipping';
-  const isInvoice = link.type === 'invoices';
-  const isHealth = link.type === 'health';
-  const isLogistics = link.type === 'logistics';
-  const isContracts = link.type === 'contracts';
-  const isChalet = link.type === 'chalet';
 
   const displayName = isShipping
     ? `شحنة ${serviceName}`

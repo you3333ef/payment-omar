@@ -79,14 +79,13 @@ const HealthServices = () => {
       patient_id: bookingData.patientId,
       phone: bookingData.phone,
       email: bookingData.email,
-      service_type: bookingData.serviceType,
       doctor_name: bookingData.doctorName,
       appointment_date: bookingData.appointmentDate,
       appointment_time: bookingData.appointmentTime,
       notes: bookingData.notes,
+      service_type: bookingData.serviceType,
       service_type_label: serviceTypes.find(s => s.value === bookingData.serviceType)?.label || '',
       service_type_icon: serviceTypes.find(s => s.value === bookingData.serviceType)?.icon || '',
-      service_type: 'health',
     };
 
     try {

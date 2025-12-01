@@ -178,15 +178,14 @@ const LogisticsServices = () => {
       package_type: bookingData.packageType,
       package_weight: bookingData.packageWeight,
       package_dimensions: bookingData.packageDimensions,
-      service_type: bookingData.serviceType,
       insurance_value: bookingData.insuranceValue,
       pickup_date: bookingData.pickupDate,
       delivery_instructions: bookingData.deliveryInstructions,
       package_type_label: packageTypes.find(p => p.value === bookingData.packageType)?.label || '',
       package_type_icon: packageTypes.find(p => p.value === bookingData.packageType)?.icon || '',
+      service_type: bookingData.serviceType,
       service_type_label: serviceTypes.find(s => s.value === bookingData.serviceType)?.label || '',
       service_type_icon: serviceTypes.find(s => s.value === bookingData.serviceType)?.icon || '',
-      service_type: 'logistics',
     };
 
     try {
