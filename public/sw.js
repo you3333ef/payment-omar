@@ -1,10 +1,10 @@
-const CACHE_NAME = 'gulf-gateway-v2';
+const CACHE_NAME = 'gulf-gateway-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/assets/index-DhbqcV3t.js',
-  '/assets/index-7UP9IcJn.css',
+  '/assets/index-CBb4lqq2.js',
+  '/assets/index-DIxVJqEQ.css',
   '/icon-192.png',
   '/icon-512.png'
 ];

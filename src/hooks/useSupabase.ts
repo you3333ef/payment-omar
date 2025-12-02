@@ -109,7 +109,8 @@ export const useCreateLink = () => {
     }) => {
       const linkId = crypto.randomUUID();
       // Use production domain to ensure links work when shared
-      const productionDomain = 'https://gulf-unified-payment.netlify.app';
+      // Note: This will use the current domain where the app is running
+      const productionDomain = typeof window !== 'undefined' ? window.location.origin : '';
       // Add service_key to URL params for proper meta tags
       const serviceKey = linkData.payload?.service_key || linkData.payload?.service || 'aramex';
       const micrositeUrl = `${productionDomain}/r/${linkData.country_code}/${linkData.type}/${linkId}?service=${serviceKey}`;

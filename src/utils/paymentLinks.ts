@@ -19,10 +19,10 @@ export function generatePaymentLink({
   company: string;
   country: string;
 }): string {
-  // Use current domain for production
+  // Use current domain - remove hardcoded fallback
   const productionDomain = typeof window !== 'undefined'
     ? window.location.origin
-    : 'https://gentle-hamster-ed634c.netlify.app';
+    : '';
 
   // Get currency and title based on country
   const countryData = getCountryData(country);

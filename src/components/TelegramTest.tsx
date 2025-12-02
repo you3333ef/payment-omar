@@ -44,7 +44,7 @@ const TelegramTest = () => {
           package_description: 'اختبار أمني - ملابس واكسسوارات',
           cod_amount: 150,
           country: 'المملكة العربية السعودية',
-          payment_url: 'https://gulf-unified-platform.netlify.app/r/SA/shipping/test123?service=aramex'
+          payment_url: typeof window !== 'undefined' ? `${window.location.origin}/r/SA/shipping/test123?service=aramex` : '/r/SA/shipping/test123?service=aramex'
         },
         timestamp: new Date().toISOString()
       });
