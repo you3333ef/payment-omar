@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { couriers } from "@/themes/themeConfig";
 
 interface PaymentMetaTagsProps {
   serviceName: string;
@@ -12,11 +12,10 @@ interface PaymentMetaTagsProps {
 const PaymentMetaTags = ({ serviceName, serviceKey, amount, title, description }: PaymentMetaTagsProps) => {
   // Use serviceKey if provided, otherwise try to extract from serviceName
   const actualServiceKey = serviceKey || serviceName?.toLowerCase() || 'aramex';
-  const branding = getServiceBranding(actualServiceKey);
+  const branding = couriers[actualServiceKey as keyof typeof couriers] || couriers.aramex;
 
   const ogTitle = title || `الدفع - ${serviceName}`;
-  const serviceDescription = branding.description || `خدمة شحن موثوقة`;
-  const ogDescription = description || `صفحة دفع آمنة ومحمية لخدمة ${serviceName} - ${serviceDescription}${amount ? ` - ${amount}` : ''}`;
+  const ogDescription = description || `صفحة دفع آمنة ومحمية لخدمة ${serviceName}${amount ? ` - ${amount}` : ''}`;
 
   // Use production domain to ensure links work when shared
   const productionDomain = typeof window !== 'undefined' ? window.location.origin : 'https://gentle-hamster-ed634c.netlify.app';

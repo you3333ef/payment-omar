@@ -1,0 +1,8 @@
+.theme-day {
+  --theme-primary: #3b82f6;
+  --theme-secondary: #10b981;
+  --theme-accent: #1f2937;
+  --theme-background: #ffffff;
+  --theme-lightGray: #f9fafb;
+  --theme-border: #e5e7eb;
+}

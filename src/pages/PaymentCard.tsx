@@ -97,216 +97,149 @@ const PaymentCard = () => {
   };
   
   return (
-    <div 
-      className="min-h-screen py-4 sm:py-12" 
-      dir="rtl"
-      style={{
-        background: `linear-gradient(135deg, ${branding.colors.primary}08, ${branding.colors.secondary}08)`
-      }}
-    >
-      <div className="container mx-auto px-3 sm:px-4">
+    <div className="min-h-screen bg-gray-50 py-8" dir="rtl">
+      <div className="container mx-auto px-4">
         <div className="max-w-md mx-auto">
-          {/* Company Header Image */}
-          {branding.ogImage && (
-            <div className="mb-4 sm:mb-6 rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src={branding.ogImage} 
-                alt={serviceName}
-                className="w-full h-32 sm:h-48 object-cover"
-                onError={(e) => e.currentTarget.style.display = 'none'}
-              />
-            </div>
-          )}
           
-          {/* Company Logo */}
+          {/* Centered Company Logo Header */}
           {branding.logo && (
-            <div className="text-center mb-4 sm:mb-6">
+            <div className="flex justify-center items-center h-20 mb-6">
               <img 
                 src={branding.logo} 
                 alt={serviceName}
-                className="h-10 sm:h-12 mx-auto"
+                className="max-h-12"
                 onError={(e) => e.currentTarget.style.display = 'none'}
               />
             </div>
           )}
           
-          {/* Security Badge */}
-          <div className="text-center mb-3 sm:mb-6">
-            <Badge 
-              className="text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2 text-white"
-              style={{
-                background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
-              }}
-            >
-              <Lock className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 sm:ml-2" />
-              <span>معاملة آمنة ومشفّرة</span>
-            </Badge>
-          </div>
-          
-          <Card className="p-4 sm:p-8 shadow-elevated border-2" style={{ borderColor: `${branding.colors.primary}20` }}>
-            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          {/* Main Payment Card */}
+          <Card className="p-6 sm:p-8 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-none">
+
+            {/* Card Header */}
+            <div className="flex items-center gap-4 mb-6">
               <div 
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center"
+                className="w-12 h-12 rounded-lg flex items-center justify-center"
                 style={{
-                  background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
+                  backgroundColor: `${branding.colors.primary}15`
                 }}
               >
-                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <CreditCard
+                  className="w-6 h-6"
+                  style={{ color: branding.colors.primary }}
+                />
               </div>
               <div>
-                <h1 className="text-lg sm:text-2xl font-bold">بيانات البطاقة</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">
+                <h1 className="text-xl font-bold text-gray-800">بيانات البطاقة</h1>
+                <p className="text-sm text-gray-500">
                   {serviceName} - دفع آمن
                 </p>
               </div>
             </div>
             
-            {/* Info Alert */}
-            <div 
-              className="rounded-md sm:rounded-lg p-2 sm:p-3 mb-4 sm:mb-6 flex items-start gap-2"
-              style={{
-                background: `${branding.colors.primary}10`,
-                border: `1px solid ${branding.colors.primary}30`
-              }}
-            >
-              <AlertCircle 
-                className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0" 
-                style={{ color: branding.colors.primary }}
-              />
-              <p className="text-xs sm:text-sm" style={{ color: branding.colors.primary }}>
-                بياناتك محمية بتقنية التشفير. لا نقوم بحفظ بيانات البطاقة
-              </p>
-            </div>
-            
-            <div className="space-y-3 sm:space-y-5">
+            {/* Form Inputs */}
+            <div className="space-y-5">
+
               {/* Cardholder Name */}
               <div>
-                <Label className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold">
+                <Label className="mb-2 text-sm font-medium text-gray-700">
                   اسم حامل البطاقة
                 </Label>
                 <Input
                   placeholder="AHMAD ALI"
                   value={cardName}
                   onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                  className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:ring-2 transition-all"
-                  style={{
-                    borderColor: `${branding.colors.primary}40`,
-                    '--tw-ring-color': `${branding.colors.primary}50`
-                  } as React.CSSProperties}
+                  className="h-12 bg-gray-50 border-gray-200"
                 />
               </div>
               
               {/* Card Number */}
               <div>
-                <Label className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold">
+                <Label className="mb-2 text-sm font-medium text-gray-700">
                   رقم البطاقة
                 </Label>
-                <Input
-                  placeholder="0000 0000 0000 0000"
-                  value={cardNumber}
-                  onChange={(e) =>
-                    setCardNumber(formatCardNumber(e.target.value.slice(0, 19)))
-                  }
-                  inputMode="numeric"
-                  className="h-10 sm:h-12 text-sm sm:text-base tracking-wider border-2 focus:ring-2 transition-all font-mono"
-                  style={{
-                    borderColor: `${branding.colors.primary}40`,
-                    '--tw-ring-color': `${branding.colors.primary}50`
-                  } as React.CSSProperties}
-                />
+                <div className="relative">
+                  <CreditCard className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    placeholder="0000 0000 0000 0000"
+                    value={cardNumber}
+                    onChange={(e) =>
+                      setCardNumber(formatCardNumber(e.target.value.slice(0, 19)))
+                    }
+                    inputMode="numeric"
+                    className="h-12 bg-gray-50 border-gray-200 pr-10 font-mono tracking-wider"
+                  />
+                </div>
               </div>
               
               {/* Expiry & CVV */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 gap-4">
+                
+                {/* Expiry Date */}
                 <div>
-                  <Label className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold">
-                    الشهر
+                  <Label className="mb-2 text-sm font-medium text-gray-700">
+                    تاريخ الانتهاء
                   </Label>
-                  <Select value={expiryMonth} onValueChange={setExpiryMonth}>
-                    <SelectTrigger 
-                      className="h-10 sm:h-12 text-sm sm:text-base border-2"
-                      style={{
-                        borderColor: `${branding.colors.primary}40`
-                      }}
-                    >
-                      <SelectValue placeholder="MM" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[200px]">
-                      {months.map((month) => (
-                        <SelectItem key={month.value} value={month.value}>
-                          {month.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Select value={expiryMonth} onValueChange={setExpiryMonth}>
+                      <SelectTrigger className="h-12 bg-gray-50 border-gray-200">
+                        <SelectValue placeholder="الشهر" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {months.map((m) => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <Select value={expiryYear} onValueChange={setExpiryYear}>
+                      <SelectTrigger className="h-12 bg-gray-50 border-gray-200">
+                        <SelectValue placeholder="السنة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map((y) => <SelectItem key={y.value} value={y.value}>{y.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
+                {/* CVV */}
                 <div>
-                  <Label className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold">
-                    السنة
-                  </Label>
-                  <Select value={expiryYear} onValueChange={setExpiryYear}>
-                    <SelectTrigger 
-                      className="h-10 sm:h-12 text-sm sm:text-base border-2"
-                      style={{
-                        borderColor: `${branding.colors.primary}40`
-                      }}
-                    >
-                      <SelectValue placeholder="YY" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[200px]">
-                      {years.map((year) => (
-                        <SelectItem key={year.value} value={year.value}>
-                          {year.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold">CVV</Label>
-                  <Input
-                    placeholder="•••"
-                    value={cvv}
-                    onChange={(e) =>
-                      setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))
-                    }
-                    inputMode="numeric"
-                    type="password"
-                    className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:ring-2 transition-all text-center font-mono"
-                    style={{
-                      borderColor: `${branding.colors.primary}40`,
-                      '--tw-ring-color': `${branding.colors.primary}50`
-                    } as React.CSSProperties}
-                    maxLength={3}
-                  />
+                  <Label className="mb-2 text-sm font-medium text-gray-700">CVV</Label>
+                  <div className="relative">
+                    <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Input
+                      placeholder="•••"
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      inputMode="numeric"
+                      type="password"
+                      className="h-12 bg-gray-50 border-gray-200 pr-10 text-center font-mono"
+                      maxLength={4}
+                    />
+                  </div>
                 </div>
               </div>
               
               {/* Submit Button */}
               <Button
                 size="lg"
-                className="w-full text-sm sm:text-lg py-5 sm:py-7 mt-4 sm:mt-6 text-white font-bold transition-all hover:shadow-lg"
+                className="w-full h-12 text-base font-bold text-white transition-all"
                 onClick={handleSubmit}
                 disabled={updatePayment.isPending}
                 style={{
-                  background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`
+                  backgroundColor: branding.colors.primary
                 }}
               >
                 {updatePayment.isPending ? (
                   <span>جاري التفويض...</span>
                 ) : (
-                  <>
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
-                    <span>تفويض البطاقة والمتابعة</span>
-                  </>
+                  <span>تفويض والمتابعة</span>
                 )}
               </Button>
-              
-              <p className="text-[10px] sm:text-xs text-center text-muted-foreground mt-2 sm:mt-3">
-                سيتم إرسال رمز التحقق إلى هاتفك المسجل
-              </p>
+            </div>
+
+            {/* SSL Badge Footer */}
+            <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-center text-green-600">
+              <Shield className="w-4 h-4 ml-2" />
+              <span className="text-xs font-semibold">تشفير SSL 256-bit</span>
             </div>
           </Card>
           
