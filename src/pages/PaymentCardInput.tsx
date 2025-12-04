@@ -61,16 +61,6 @@ const PaymentCardInput = () => {
   const selectedBank = selectedBankId && selectedBankId !== 'skipped' ? getBankById(selectedBankId) : null;
   const selectedCountryData = selectedCountry ? getCountryByCode(selectedCountry) : null;
 
-  // UAE Government Color Scheme
-  const uaeColors = {
-    primary: "#CE1126", // UAE Red
-    secondary: "#00732F", // UAE Green
-    accent: "#000000", // Black
-    background: "#FFFFFF", // White
-    lightGray: "#F5F5F5",
-    border: "#E0E0E0",
-  };
-
   const handleCardNumberChange = (value: string) => {
     const formatted = formatCardNumber(value.replace(/\D/g, "").slice(0, 16));
     setCardNumber(formatted);
