@@ -1,0 +1,8 @@
+.theme-night {
+  --theme-primary: #CE1126;
+  --theme-secondary: #00732F;
+  --theme-accent: #000000;
+  --theme-background: #FFFFFF;
+  --theme-lightGray: #F5F5F5;
+  --theme-border: #E0E0E0;
+}

@@ -204,7 +204,7 @@ const PaymentOTP = () => {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       style={{
-        background: `linear-gradient(135deg, ${branding.colors.primary}08, ${branding.colors.secondary}08)`
+        background: `linear-gradient(135deg, var(--theme-primary)08, var(--theme-secondary)08)`
       }}
     >
       <div className="container mx-auto px-3 sm:px-4">

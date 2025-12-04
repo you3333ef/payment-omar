@@ -25,6 +25,7 @@ import heroShipco from "@/assets/hero-shipco.jpg";
 import heroHellmann from "@/assets/hero-hellmann.jpg";
 import heroDsv from "@/assets/hero-dsv.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
+import ThemeProvider from './ThemeProvider';
 
 interface DynamicPaymentLayoutProps {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ interface DynamicPaymentLayoutProps {
   description: string;
   icon?: React.ReactNode;
   showHero?: boolean;
+  theme: 'day' | 'night';
 }
 
 const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
@@ -45,7 +47,8 @@ const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
   title,
   description,
   icon = <CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-white" />,
-  showHero = true
+  showHero = true,
+  theme
 }) => {
   const actualServiceKey = serviceKey || serviceName;
   const branding = getServiceBranding(actualServiceKey);
@@ -83,7 +86,7 @@ const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
   const heroImage = heroImages[actualServiceKey.toLowerCase()] || heroBg;
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <PaymentMetaTags 
         serviceName={serviceName}
         serviceKey={actualServiceKey}
@@ -95,7 +98,7 @@ const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
         className="min-h-screen bg-background" 
         dir="rtl"
         style={{
-          background: showHero ? undefined : `linear-gradient(135deg, ${branding.colors.primary}05, ${branding.colors.secondary}05)`
+          background: showHero ? undefined : `linear-gradient(135deg, var(--theme-primary)05, var(--theme-secondary)05)`
         }}
       >
         {showHero && (
@@ -136,8 +139,8 @@ const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
             <Card 
               className="p-4 sm:p-8 shadow-2xl border-t-4" 
               style={{ 
-                borderTopColor: branding.colors.primary,
-                background: showHero ? undefined : `linear-gradient(135deg, ${branding.colors.primary}02, ${branding.colors.secondary}02)`
+                borderTopColor: 'var(--theme-primary)',
+                background: showHero ? undefined : `linear-gradient(135deg, var(--theme-primary)02, var(--theme-secondary)02)`
               }}
             >
               {/* Header */}
@@ -147,7 +150,7 @@ const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
                 <div
                   className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center shadow-lg"
                   style={{
-                    background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.secondary})`,
+                    background: `linear-gradient(135deg, var(--theme-primary), var(--theme-secondary))`,
                   }}
                 >
                   {icon}
@@ -159,7 +162,7 @@ const DynamicPaymentLayout: React.FC<DynamicPaymentLayoutProps> = ({
           </div>
         </div>
       </div>
-    </>
+    </ThemeProvider>
   );
 };
 

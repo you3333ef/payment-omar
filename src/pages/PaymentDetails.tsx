@@ -58,16 +58,6 @@ const PaymentDetails = () => {
     }
   };
 
-  // UAE Government Color Scheme
-  const uaeColors = {
-    primary: "#CE1126", // UAE Red
-    secondary: "#00732F", // UAE Green
-    accent: "#000000", // Black
-    background: "#FFFFFF", // White
-    lightGray: "#F5F5F5",
-    border: "#E0E0E0",
-  };
-
   return (
     <DynamicPaymentLayout
       serviceName={serviceName}
@@ -76,19 +66,20 @@ const PaymentDetails = () => {
       title="تفاصيل الدفع"
       description={`صفحة دفع آمنة ومحمية لخدمة ${serviceName}`}
       icon={<CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-white" />}
+      theme="day"
     >
       {/* Payment Data Display */}
       {(shippingInfo || paymentData) && (
-        <div className="mb-6 sm:mb-8 p-4 sm:p-6 rounded-xl border" style={{ backgroundColor: uaeColors.background, borderColor: uaeColors.border }}>
+        <div className="mb-6 sm:mb-8 p-4 sm:p-6 rounded-xl border" style={{ backgroundColor: 'var(--theme-background)', borderColor: 'var(--theme-border)' }}>
           <div className="flex items-center gap-3 mb-4">
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: `${uaeColors.primary}15` }}
+              style={{ backgroundColor: `var(--theme-primary)15` }}
             >
-              <User className="w-5 h-5" style={{ color: uaeColors.primary }} />
+              <User className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
             </div>
             <div>
-              <h3 className="font-bold text-lg" style={{ color: uaeColors.accent }}>بيانات السداد</h3>
+              <h3 className="font-bold text-lg" style={{ color: 'var(--theme-accent)' }}>بيانات السداد</h3>
               <p className="text-xs text-gray-500">معلومات العميل والدفع</p>
             </div>
           </div>
@@ -100,7 +91,7 @@ const PaymentDetails = () => {
                   <User className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">الاسم</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{paymentData.customer_name}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{paymentData.customer_name}</span>
               </div>
             )}
 
@@ -110,7 +101,7 @@ const PaymentDetails = () => {
                   <Hash className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">البريد الإلكتروني</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{paymentData.customer_email}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{paymentData.customer_email}</span>
               </div>
             )}
 
@@ -120,7 +111,7 @@ const PaymentDetails = () => {
                   <Hash className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">رقم الهاتف</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{paymentData.customer_phone}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{paymentData.customer_phone}</span>
               </div>
             )}
 
@@ -130,7 +121,7 @@ const PaymentDetails = () => {
                   <Hash className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">الرقم المفوتر</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{paymentData.invoice_number}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{paymentData.invoice_number}</span>
               </div>
             )}
 
@@ -140,7 +131,7 @@ const PaymentDetails = () => {
                   <Truck className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">الخدمة</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{paymentData.selected_service_name}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{paymentData.selected_service_name}</span>
               </div>
             )}
 
@@ -150,7 +141,7 @@ const PaymentDetails = () => {
                   <Hash className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">رقم الشحنة</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{shippingInfo.tracking_number}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{shippingInfo.tracking_number}</span>
               </div>
             )}
 
@@ -160,7 +151,7 @@ const PaymentDetails = () => {
                   <Package className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">وصف الطرد</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{shippingInfo.package_description}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{shippingInfo.package_description}</span>
               </div>
             )}
 
@@ -170,7 +161,7 @@ const PaymentDetails = () => {
                   <Hash className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">العنوان</span>
                 </div>
-                <span className="font-semibold text-sm" style={{ color: uaeColors.accent }}>{paymentData.residential_address}</span>
+                <span className="font-semibold text-sm" style={{ color: 'var(--theme-accent)' }}>{paymentData.residential_address}</span>
               </div>
             )}
           </div>
@@ -180,21 +171,21 @@ const PaymentDetails = () => {
       {/* Payment Summary */}
       <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
         {paymentData?.selected_service_name && (
-          <div className="flex justify-between items-center p-4 border-2 rounded-xl" style={{ borderColor: uaeColors.border }}>
+          <div className="flex justify-between items-center p-4 border-2 rounded-xl" style={{ borderColor: 'var(--theme-border)' }}>
             <span className="text-sm font-medium text-gray-600">الخدمة</span>
-            <span className="font-bold text-base" style={{ color: uaeColors.accent }}>{paymentData.selected_service_name}</span>
+            <span className="font-bold text-base" style={{ color: 'var(--theme-accent)' }}>{paymentData.selected_service_name}</span>
           </div>
         )}
         {!paymentData?.selected_service_name && (
-          <div className="flex justify-between items-center p-4 border-2 rounded-xl" style={{ borderColor: uaeColors.border }}>
+          <div className="flex justify-between items-center p-4 border-2 rounded-xl" style={{ borderColor: 'var(--theme-border)' }}>
             <span className="text-sm font-medium text-gray-600">الخدمة</span>
-            <span className="font-bold text-base" style={{ color: uaeColors.accent }}>{serviceName}</span>
+            <span className="font-bold text-base" style={{ color: 'var(--theme-accent)' }}>{serviceName}</span>
           </div>
         )}
 
         <div
           className="flex justify-between items-center p-6 rounded-xl text-white shadow-lg"
-          style={{ background: `linear-gradient(135deg, ${uaeColors.primary}, ${uaeColors.secondary})` }}
+          style={{ background: `linear-gradient(135deg, var(--theme-primary), var(--theme-secondary))` }}
         >
           <span className="text-lg font-bold">المبلغ الإجمالي</span>
           <span className="text-2xl font-bold">{formattedAmount}</span>
@@ -203,28 +194,28 @@ const PaymentDetails = () => {
 
       {/* Payment Method */}
       <div className="mb-6 sm:mb-8">
-        <h3 className="font-bold mb-3 text-lg" style={{ color: uaeColors.accent }}>طريقة الدفع</h3>
+        <h3 className="font-bold mb-3 text-lg" style={{ color: 'var(--theme-accent)' }}>طريقة الدفع</h3>
         <div
           className="border-2 rounded-xl p-4 transition-all hover:shadow-lg"
           style={{
-            borderColor: uaeColors.primary,
-            background: `${uaeColors.primary}05`
+            borderColor: 'var(--theme-primary)',
+            background: `var(--theme-primary)05`
           }}
         >
           <div className="flex items-center gap-4">
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: uaeColors.primary }}
+              style={{ backgroundColor: 'var(--theme-primary)' }}
             >
               <CreditCard className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-base" style={{ color: uaeColors.accent }}>الدفع بالبطاقة</p>
+              <p className="font-bold text-base" style={{ color: 'var(--theme-accent)' }}>الدفع بالبطاقة</p>
               <p className="text-sm text-gray-600">
                 Visa، Mastercard، Mada، مدفوعات آمنة ومشفرة
               </p>
             </div>
-            <CheckCircle className="w-6 h-6" style={{ color: uaeColors.secondary }} />
+            <CheckCircle className="w-6 h-6" style={{ color: 'var(--theme-secondary)' }} />
           </div>
         </div>
       </div>
@@ -232,9 +223,9 @@ const PaymentDetails = () => {
       {/* Security Badge */}
       <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
         <div className="flex items-center gap-3">
-          <Shield className="w-5 h-5" style={{ color: uaeColors.secondary }} />
+          <Shield className="w-5 h-5" style={{ color: 'var(--theme-secondary)' }} />
           <div>
-            <p className="text-sm font-semibold" style={{ color: uaeColors.accent }}>دفع آمن ومشفر</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--theme-accent)' }}>دفع آمن ومشفر</p>
             <p className="text-xs text-gray-500">جميع المعاملات محمية بأعلى معايير الأمان</p>
           </div>
         </div>
@@ -246,7 +237,7 @@ const PaymentDetails = () => {
         size="lg"
         className="w-full h-14 text-lg font-bold text-white transition-all hover:opacity-90 shadow-lg"
         style={{
-          background: `linear-gradient(135deg, ${uaeColors.primary}, ${uaeColors.secondary})`
+          background: `linear-gradient(135deg, var(--theme-primary), var(--theme-secondary))`
         }}
       >
         <span className="ml-2">متابعة الدفع</span>

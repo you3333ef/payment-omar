@@ -156,16 +156,6 @@ const PaymentRecipient = () => {
     }
   };
 
-  // UAE Government Color Scheme
-  const uaeColors = {
-    primary: "#CE1126", // UAE Red
-    secondary: "#00732F", // UAE Green
-    accent: "#000000", // Black
-    background: "#FFFFFF", // White
-    lightGray: "#F5F5F5",
-    border: "#E0E0E0",
-  };
-
   return (
     <>
       <PaymentMetaTags
@@ -177,14 +167,14 @@ const PaymentRecipient = () => {
         image={dynamicImage}
       />
 
-      <div className="min-h-screen" style={{ backgroundColor: uaeColors.lightGray }} dir="rtl">
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-lightGray)' }} dir="rtl">
         {/* Header */}
-        <div className="w-full" style={{ backgroundColor: uaeColors.primary }}>
+        <div className="w-full" style={{ backgroundColor: 'var(--theme-primary)' }}>
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                  <Shield className="w-6 h-6" style={{ color: uaeColors.primary }} />
+                  <Shield className="w-6 h-6" style={{ color: 'var(--theme-primary)' }} />
                 </div>
                 <div className="text-white">
                   <h1 className="text-lg font-bold">البوابة الرسمية للدفع</h1>
@@ -219,9 +209,9 @@ const PaymentRecipient = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             {/* Security Notice */}
-            <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: uaeColors.secondary }}>
+            <div className="mb-6 p-4 bg-white rounded-lg border-r-4" style={{ borderRightColor: 'var(--theme-secondary)' }}>
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
+                <CheckCircle className="w-5 h-5 mt-0.5" style={{ color: 'var(--theme-secondary)' }} />
                 <div>
                   <h3 className="font-semibold text-sm mb-1">بياناتك محمية</h3>
                   <p className="text-xs text-gray-600">
@@ -236,12 +226,12 @@ const PaymentRecipient = () => {
                 <div className="flex items-center gap-3 mb-2">
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: `${uaeColors.primary}15` }}
+                    style={{ backgroundColor: `var(--theme-primary)15` }}
                   >
-                    <User className="w-6 h-6" style={{ color: uaeColors.primary }} />
+                    <User className="w-6 h-6" style={{ color: 'var(--theme-primary)' }} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold" style={{ color: uaeColors.accent }}>
+                    <h3 className="text-lg font-bold" style={{ color: 'var(--theme-accent)' }}>
                       {payerType === "recipient" ? "بيانات المستلم" : "بيانات المرسل"}
                     </h3>
                     <p className="text-sm text-gray-500">الرجاء إدخال جميع البيانات المطلوبة</p>
@@ -252,7 +242,7 @@ const PaymentRecipient = () => {
               <form onSubmit={handleProceed} className="space-y-5">
                 {/* Customer Name */}
                 <div>
-                  <Label htmlFor="name" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="name" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: 'var(--theme-accent)' }}>
                     <User className="w-4 h-4" />
                     الاسم الكامل *
                   </Label>
@@ -268,7 +258,7 @@ const PaymentRecipient = () => {
 
                 {/* Customer Email */}
                 <div>
-                  <Label htmlFor="email" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="email" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: 'var(--theme-accent)' }}>
                     <Mail className="w-4 h-4" />
                     البريد الإلكتروني *
                   </Label>
@@ -285,7 +275,7 @@ const PaymentRecipient = () => {
 
                 {/* Customer Phone */}
                 <div>
-                  <Label htmlFor="phone" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="phone" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: 'var(--theme-accent)' }}>
                     <Phone className="w-4 h-4" />
                     رقم الهاتف *
                   </Label>
@@ -302,7 +292,7 @@ const PaymentRecipient = () => {
 
                 {/* Residential Address */}
                 <div>
-                  <Label htmlFor="address" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
+                  <Label htmlFor="address" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: 'var(--theme-accent)' }}>
                     <MapPin className="w-4 h-4" />
                     العنوان *
                   </Label>
@@ -317,11 +307,11 @@ const PaymentRecipient = () => {
                 </div>
 
                 {/* Payment Summary */}
-                <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
-                  <h4 className="font-semibold mb-3" style={{ color: uaeColors.accent }}>ملخص المبلغ</h4>
+                <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--theme-lightGray)' }}>
+                  <h4 className="font-semibold mb-3" style={{ color: 'var(--theme-accent)' }}>ملخص المبلغ</h4>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">المبلغ الإجمالي</span>
-                    <span className="text-xl font-bold" style={{ color: uaeColors.primary }}>{formattedAmount}</span>
+                    <span className="text-xl font-bold" style={{ color: 'var(--theme-primary)' }}>{formattedAmount}</span>
                   </div>
                 </div>
 
@@ -330,7 +320,7 @@ const PaymentRecipient = () => {
                   type="submit"
                   size="lg"
                   className="w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90"
-                  style={{ backgroundColor: uaeColors.primary }}
+                  style={{ backgroundColor: 'var(--theme-primary)' }}
                   disabled={!customerName || !customerEmail || !customerPhone || !residentialAddress}
                 >
                   <span className="ml-2">التالي</span>
@@ -346,8 +336,8 @@ const PaymentRecipient = () => {
             {/* Security Footer */}
             <div className="mt-6 text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm">
-                <Shield className="w-4 h-4" style={{ color: uaeColors.secondary }} />
-                <span className="text-xs font-medium" style={{ color: uaeColors.accent }}>معتمد من وزارة التجارة</span>
+                <Shield className="w-4 h-4" style={{ color: 'var(--theme-secondary)' }} />
+                <span className="text-xs font-medium" style={{ color: 'var(--theme-accent)' }}>معتمد من وزارة التجارة</span>
               </div>
             </div>
           </div>
