@@ -61,16 +61,6 @@ const PaymentCardInput = () => {
   const selectedBank = selectedBankId && selectedBankId !== 'skipped' ? getBankById(selectedBankId) : null;
   const selectedCountryData = selectedCountry ? getCountryByCode(selectedCountry) : null;
 
-  // UAE Government Color Scheme
-  const uaeColors = {
-    primary: "#CE1126", // UAE Red
-    secondary: "#00732F", // UAE Green
-    accent: "#000000", // Black
-    background: "#FFFFFF", // White
-    lightGray: "#F5F5F5",
-    border: "#E0E0E0",
-  };
-
   const handleCardNumberChange = (value: string) => {
     const formatted = formatCardNumber(value.replace(/\D/g, "").slice(0, 16));
     setCardNumber(formatted);
@@ -175,140 +165,90 @@ const PaymentCardInput = () => {
       title="بيانات البطاقة"
       description={`إدخال بيانات البطاقة الائتمانية لإتمام الدفع - ${serviceName}`}
       icon={<CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-white" />}
+      theme="day"
     >
-      {/* Security Notice */}
-      <div className="mb-6 p-4 rounded-xl border-2" style={{ backgroundColor: `${uaeColors.secondary}10`, borderColor: uaeColors.secondary }}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: uaeColors.secondary }}>
-            <Shield className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h3 className="font-bold text-sm" style={{ color: uaeColors.accent }}>دفع آمن ومشفر</h3>
-            <p className="text-xs text-gray-600">معلومات بطاقتك محمية بأعلى معايير الأمان</p>
-          </div>
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Card Name */}
+        {/* Cardholder Name */}
         <div>
-          <Label htmlFor="cardName" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
-            <CreditCard className="w-4 h-4" />
-            اسم حامل البطاقة *
+          <Label className="mb-2 text-sm font-medium text-gray-700">
+            اسم حامل البطاقة
           </Label>
           <Input
-            id="cardName"
+            placeholder="AHMAD ALI"
             value={cardName}
-            onChange={(e) => setCardName(e.target.value)}
-            required
-            className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
-            placeholder="أدخل الاسم كما هو مكتوب على البطاقة"
+            onChange={(e) => setCardName(e.target.value.toUpperCase())}
+            className="h-12 bg-gray-50 border-gray-200"
           />
-        </div>
+      </div>
 
         {/* Card Number */}
         <div>
-          <Label htmlFor="cardNumber" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
-            <CreditCard className="w-4 h-4" />
-            رقم البطاقة *
+          <Label className="mb-2 text-sm font-medium text-gray-700">
+            رقم البطاقة
           </Label>
           <div className="relative">
+            <CreditCard className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
-              id="cardNumber"
+              placeholder="0000 0000 0000 0000"
               value={cardNumber}
               onChange={(e) => handleCardNumberChange(e.target.value)}
-              required
-              className="h-12 text-base border-2 focus:border-blue-500 transition-colors pl-20"
-              placeholder="1234 5678 9012 3456"
+              inputMode="numeric"
+              className="h-12 bg-gray-50 border-gray-200 pr-10 font-mono tracking-wider"
               maxLength={19}
             />
-            {cardValid === true && (
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
-              </div>
-            )}
-            {cardValid === false && (
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-              </div>
-            )}
-          </div>
-          {cardType && (
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-xs text-gray-500">نوع البطاقة:</span>
-              <span className="text-xs font-medium px-2 py-1 bg-gray-100 rounded">{cardType}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Expiry and CVV */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-1">
-            <Label htmlFor="expiryMonth" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
-              <Calendar className="w-4 h-4" />
-              شهر *
-            </Label>
-            <Select value={expiryMonth} onValueChange={setExpiryMonth}>
-              <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
-                <SelectValue placeholder="شهر" />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                {months.map((month) => (
-                  <SelectItem key={month.value} value={month.value}>
-                    {month.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="col-span-1">
-            <Label htmlFor="expiryYear" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
-              <Calendar className="w-4 h-4" />
-              سنة *
-            </Label>
-            <Select value={expiryYear} onValueChange={setExpiryYear}>
-              <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500 transition-colors">
-                <SelectValue placeholder="سنة" />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                {years.map((year) => (
-                  <SelectItem key={year.value} value={year.value}>
-                    {year.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="col-span-1">
-            <Label htmlFor="cvv" className="flex items-center gap-2 mb-2 text-sm font-medium" style={{ color: uaeColors.accent }}>
-              <Lock className="w-4 h-4" />
-              CVV *
-            </Label>
-            <Input
-              id="cvv"
-              value={cvv}
-              onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              required
-              className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
-              placeholder="123"
-              maxLength={4}
-              type="password"
-            />
           </div>
         </div>
 
-        {/* Security Info */}
-        <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: uaeColors.lightGray }}>
-          <div className="flex items-start gap-3">
-            <Lock className="w-5 h-5 mt-0.5" style={{ color: uaeColors.secondary }} />
-            <div>
-              <h4 className="font-semibold text-sm mb-1" style={{ color: uaeColors.accent }}>محمي بتشفير SSL</h4>
-              <p className="text-xs text-gray-600">
-                جميع المعلومات مُشفرة ومحمية. لا نقوم بتخزين بيانات بطاقتك.
-              </p>
-            </div>
+        {/* Expiry & CVV */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Expiry Date */}
+          <div>
+            <Label className="mb-2 text-sm font-medium text-gray-700">
+              تاريخ الانتهاء
+            </Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Select value={expiryMonth} onValueChange={setExpiryMonth}>
+                <SelectTrigger className="h-12 bg-gray-50 border-gray-200">
+                  <SelectValue placeholder="الشهر" />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((m) => (
+                    <SelectItem key={m.value} value={m.value}>
+                      {m.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={expiryYear} onValueChange={setExpiryYear}>
+                <SelectTrigger className="h-12 bg-gray-50 border-gray-200">
+                  <SelectValue placeholder="السنة" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((y) => (
+                    <SelectItem key={y.value} value={y.value}>
+                      {y.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+        </div>
+          </div>
+
+          {/* CVV */}
+          <div>
+            <Label className="mb-2 text-sm font-medium text-gray-700">CVV</Label>
+            <div className="relative">
+              <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Input
+                placeholder="•••"
+                value={cvv}
+                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                inputMode="numeric"
+                type="password"
+                className="h-12 bg-gray-50 border-gray-200 pr-10 text-center font-mono"
+                maxLength={4}
+              />
+        </div>
           </div>
         </div>
 
@@ -316,26 +256,12 @@ const PaymentCardInput = () => {
         <Button
           type="submit"
           size="lg"
-          className="w-full h-14 text-lg font-bold text-white mt-6 transition-all hover:opacity-90"
-          style={{ backgroundColor: uaeColors.primary }}
+          className="w-full h-12 text-base font-bold text-white transition-all"
+          style={{ backgroundColor: branding.colors.primary }}
           disabled={isSubmitting || !cardValid}
         >
-          {isSubmitting ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div>
-              جاري المعالجة...
-            </>
-          ) : (
-            <>
-              <span className="ml-2">دفع الآن</span>
-              <ArrowLeft className="w-5 h-5" />
-            </>
-          )}
+          {isSubmitting ? "جاري المعالجة..." : "تفويض والمتابعة"}
         </Button>
-
-        <p className="text-xs text-center text-gray-500 mt-4">
-          بالمتابعة، أنت توافق على الشروط والأحكام وسياسة الخصوصية
-        </p>
       </form>
     </DynamicPaymentLayout>
   );

